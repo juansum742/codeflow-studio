@@ -33,6 +33,7 @@ El workflow:
 
 - aplica las migraciones remotas de D1
 - despliega el Worker automáticamente
+- se salta solo mientras `backend/wrangler.jsonc` siga con `REPLACE_WITH_D1_DATABASE_ID`
 
 Además, el Worker debe tener ya configurados en Cloudflare estos secrets de runtime:
 
