@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeFlow Studio | Panel privado</title>
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#05070d">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/codeflow-studio-mark.png">
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body class="admin-body">
+  <div class="admin-grid" aria-hidden="true"></div>
+  <div class="admin-glow admin-glow-one" aria-hidden="true"></div>
+  <div class="admin-glow admin-glow-two" aria-hidden="true"></div>
+
+  <main class="admin-page">
+    <section class="login-shell" data-login-shell>
+      <div class="login-card">
+        <img src="assets/codeflow-studio-logo.png" alt="CodeFlow Studio" width="280" height="115">
+        <p class="eyebrow">Panel privado</p>
+        <h1>Inbox interno de mensajes</h1>
+        <p>Acceso simple con contraseña configurable para revisar consultas, marcarlas como leídas, eliminarlas y responder manualmente.</p>
+
+        <form class="login-form" data-login-form novalidate>
+          <label>
+            Contraseña
+            <input type="password" name="password" placeholder="Ingresa la contraseña" required>
+          </label>
+          <button class="button button-primary" type="submit">Ingresar</button>
+          <p class="login-feedback" data-login-feedback role="status" aria-live="polite"></p>
+        </form>
+
+        <div class="login-note">
+          <strong>Modo compatible con GitHub Pages</strong>
+          <span>El inbox funciona con almacenamiento del navegador para mantener el sitio 100% estático.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard-shell is-hidden" data-dashboard-shell>
+      <header class="dashboard-topbar">
+        <div class="dashboard-brand">
+          <img src="assets/codeflow-studio-logo.png" alt="CodeFlow Studio" width="220" height="91">
+          <div>
+            <p class="eyebrow">Admin privado</p>
+            <h1>Mensajes recibidos</h1>
+          </div>
+        </div>
+
+        <div class="dashboard-actions">
+          <span class="mode-pill" data-storage-mode></span>
+          <button class="button button-ghost button-compact" type="button" data-logout-button>Cerrar sesión</button>
+        </div>
+      </header>
+
+      <div class="dashboard-note">
+        <strong>Estado del inbox</strong>
+        <span>En GitHub Pages este panel usa almacenamiento local del navegador. Para sincronización multi-dispositivo habría que conectar un backend externo.</span>
+      </div>
+
+      <section class="stats-grid" data-stats-grid>
+        <article class="stat-card">
+          <span>Total</span>
+          <strong data-stat-total>0</strong>
+        </article>
+        <article class="stat-card">
+          <span>No leídos</span>
+          <strong data-stat-unread>0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Leídos</span>
+          <strong data-stat-read>0</strong>
+        </article>
+      </section>
+
+      <section class="toolbar">
+        <label class="search-field">
+          <span>Buscar</span>
+          <input type="search" data-search-input placeholder="Nombre, negocio o tipo de proyecto">
+        </label>
+
+        <div class="filter-group" role="tablist" aria-label="Filtrar mensajes">
+          <button class="filter-button is-active" type="button" data-filter-button data-filter="all">Todos</button>
+          <button class="filter-button" type="button" data-filter-button data-filter="unread">No leídos</button>
+          <button class="filter-button" type="button" data-filter-button data-filter="read">Leídos</button>
+        </div>
+      </section>
+
+      <section class="messages-list" data-messages-list></section>
+    </section>
+  </main>
+
+  <script src="site-config.js"></script>
+  <script src="messages.js"></script>
+  <script src="admin.js" defer></script>
+</body>
+</html>
