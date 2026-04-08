@@ -28,19 +28,15 @@ Antes de que funcione, agrega estos secrets al repositorio:
 
 - `CLOUDFLARE_API_TOKEN`
 - `CLOUDFLARE_ACCOUNT_ID`
+- `ADMIN_PASSWORD`
+- `SESSION_SECRET`
 
 El workflow:
 
 - aplica las migraciones remotas de D1
 - despliega el Worker automáticamente
 - se salta solo mientras `backend/wrangler.jsonc` siga con `REPLACE_WITH_D1_DATABASE_ID`
-
-Además, el Worker debe tener ya configurados en Cloudflare estos secrets de runtime:
-
-- `ADMIN_PASSWORD`
-- `SESSION_SECRET`
-
-Puedes cargarlos una sola vez desde el dashboard de Cloudflare o con `wrangler secret put`. Como `backend/wrangler.jsonc` declara `secrets.required`, el deploy fallará si esos valores no existen todavía.
+- sincroniza `ADMIN_PASSWORD` y `SESSION_SECRET` desde GitHub Secrets al Worker durante el deploy
 
 Después del primer deploy, deja la URL del Worker en `site-config.js` para que la web pública y `admin.html` usen la API real.
 
