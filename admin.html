@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/codeflow-studio-mark.png">
-  <link rel="stylesheet" href="admin.css?v=20260408-1">
+  <link rel="stylesheet" href="admin.css?v=20260408-2">
 </head>
 <body class="admin-body">
   <div class="admin-grid" aria-hidden="true"></div>
@@ -35,8 +35,8 @@
         </form>
 
         <div class="login-note">
-          <strong>Modo compatible con GitHub Pages</strong>
-          <span>El inbox funciona con almacenamiento del navegador para mantener el sitio 100% estático.</span>
+          <strong>Modo híbrido</strong>
+          <span>El panel usa backend real cuando hay una API configurada y vuelve a modo navegador solo como fallback.</span>
         </div>
       </div>
     </section>
@@ -59,7 +59,7 @@
 
       <div class="dashboard-note">
         <strong>Estado del inbox</strong>
-        <span>En GitHub Pages este panel usa almacenamiento local del navegador. Para sincronización multi-dispositivo habría que conectar un backend externo.</span>
+        <span>Con una API configurada, este panel centraliza mensajes entre dispositivos. Sin API, queda en modo local del navegador.</span>
       </div>
 
       <section class="stats-grid" data-stats-grid>
@@ -90,12 +90,14 @@
         </div>
       </section>
 
+      <p class="dashboard-feedback" data-dashboard-feedback role="status" aria-live="polite"></p>
+
       <section class="messages-list" data-messages-list></section>
     </section>
   </main>
 
-  <script src="site-config.js?v=20260408-1"></script>
-  <script src="messages.js?v=20260408-1"></script>
-  <script src="admin.js?v=20260408-1" defer></script>
+  <script src="site-config.js?v=20260408-3"></script>
+  <script src="messages.js?v=20260408-3"></script>
+  <script src="admin.js?v=20260408-3" defer></script>
 </body>
 </html>

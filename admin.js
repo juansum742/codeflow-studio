@@ -1,4 +1,3 @@
-const config = window.CodeFlowConfig;
 const inbox = window.CodeFlowInbox;
 
 const loginShell = document.querySelector("[data-login-shell]");
@@ -13,11 +12,15 @@ const storageMode = document.querySelector("[data-storage-mode]");
 const statTotal = document.querySelector("[data-stat-total]");
 const statUnread = document.querySelector("[data-stat-unread]");
 const statRead = document.querySelector("[data-stat-read]");
+const dashboardFeedback = document.querySelector("[data-dashboard-feedback]");
 
 const state = {
   filter: "all",
-  query: ""
+  query: "",
+  messages: []
 };
+
+let feedbackTimeoutId = 0;
 
 const normalizeInstagramUrl = (value) => {
   const input = `${value || ""}`.trim();
@@ -46,8 +49,26 @@ const setAuthenticatedState = (isAuthenticated) => {
   dashboardShell?.classList.toggle("is-hidden", !isAuthenticated);
 };
 
-const updateStats = () => {
-  const stats = inbox.getStats();
+const setDashboardFeedback = (text = "", tone = "") => {
+  if (!dashboardFeedback) {
+    return;
+  }
+
+  window.clearTimeout(feedbackTimeoutId);
+  dashboardFeedback.textContent = text;
+  dashboardFeedback.classList.toggle("is-success", tone === "success");
+  dashboardFeedback.classList.toggle("is-error", tone === "error");
+
+  if (text && tone !== "error") {
+    feedbackTimeoutId = window.setTimeout(() => {
+      dashboardFeedback.textContent = "";
+      dashboardFeedback.classList.remove("is-success", "is-error");
+    }, 2400);
+  }
+};
+
+const updateStats = (messages) => {
+  const stats = inbox.getStats(messages);
 
   if (statTotal) {
     statTotal.textContent = String(stats.total);
@@ -65,7 +86,7 @@ const updateStats = () => {
 const getFilteredMessages = () => {
   const query = state.query.toLowerCase();
 
-  return inbox.getMessages().filter((message) => {
+  return state.messages.filter((message) => {
     if (state.filter === "unread" && message.read) {
       return false;
     }
@@ -98,9 +119,9 @@ const renderMessages = () => {
     return;
   }
 
-  const messages = getFilteredMessages();
+  updateStats(state.messages);
 
-  updateStats();
+  const messages = getFilteredMessages();
 
   if (!messages.length) {
     renderEmptyState("No hay mensajes para mostrar con el filtro actual.");
@@ -158,6 +179,25 @@ const setActiveFilterButton = () => {
   });
 };
 
+const loadMessages = async () => {
+  try {
+    state.messages = await inbox.getMessages();
+    renderMessages();
+  } catch (error) {
+    if (`${error.message || ""}`.toLowerCase().includes("sesion")) {
+      inbox.logoutAdmin();
+      setAuthenticatedState(false);
+      loginFeedback.textContent = "La sesión del panel expiró. Vuelve a iniciar sesión.";
+      renderEmptyState("La sesión del panel expiró. Vuelve a iniciar sesión.");
+      setDashboardFeedback("La sesión del panel expiró. Vuelve a iniciar sesión.", "error");
+      return;
+    }
+
+    setDashboardFeedback(error.message || "No pudimos cargar los mensajes.", "error");
+    renderEmptyState(error.message || "No pudimos cargar los mensajes.");
+  }
+};
+
 const attachDashboardEvents = () => {
   if (!messagesList) {
     return;
@@ -170,39 +210,60 @@ const attachDashboardEvents = () => {
 
     if (markReadButton) {
       const messageId = markReadButton.dataset.markRead;
-      const message = inbox.getMessages().find((item) => item.id === messageId);
+      const message = state.messages.find((item) => item.id === messageId);
 
       if (message) {
-        inbox.setRead(messageId, !message.read);
-        renderMessages();
+        try {
+          await inbox.setRead(messageId, !message.read);
+          await loadMessages();
+          setDashboardFeedback(message.read ? "Mensaje marcado como no leído." : "Mensaje marcado como leído.", "success");
+        } catch (error) {
+          setDashboardFeedback(error.message || "No pudimos actualizar el mensaje.", "error");
+        }
       }
+
+      return;
     }
 
     if (deleteButton) {
       const messageId = deleteButton.dataset.deleteMessage;
-      inbox.deleteMessage(messageId);
-      renderMessages();
+
+      if (!window.confirm("¿Quieres eliminar este mensaje del panel?")) {
+        return;
+      }
+
+      try {
+        await inbox.deleteMessage(messageId);
+        await loadMessages();
+        setDashboardFeedback("Mensaje eliminado del panel.", "success");
+      } catch (error) {
+        setDashboardFeedback(error.message || "No pudimos eliminar el mensaje.", "error");
+      }
+
+      return;
     }
 
     if (copyButton) {
       const messageId = copyButton.dataset.copyReply;
-      const message = inbox.getMessages().find((item) => item.id === messageId);
+      const message = state.messages.find((item) => item.id === messageId);
 
       if (message) {
         try {
           await navigator.clipboard.writeText(inbox.buildReplyText(message));
           copyButton.textContent = "Copiado";
+          setDashboardFeedback("Respuesta copiada para compartir.", "success");
           setTimeout(() => {
             copyButton.textContent = "Copiar";
           }, 1200);
         } catch {
           copyButton.textContent = "No disponible";
+          setDashboardFeedback("No pudimos copiar el texto en este navegador.", "error");
         }
       }
     }
   });
 
-  messagesList.addEventListener("submit", (event) => {
+  messagesList.addEventListener("submit", async (event) => {
     const replyForm = event.target.closest("[data-reply-form]");
 
     if (!replyForm) {
@@ -214,17 +275,25 @@ const attachDashboardEvents = () => {
     const messageId = replyForm.dataset.replyForm;
     const draft = new FormData(replyForm).get("replyDraft");
 
-    inbox.setReplyDraft(messageId, `${draft || ""}`);
-    renderMessages();
+    try {
+      await inbox.setReplyDraft(messageId, `${draft || ""}`);
+      await loadMessages();
+      setDashboardFeedback("Respuesta guardada en el panel.", "success");
+    } catch (error) {
+      setDashboardFeedback(error.message || "No pudimos guardar la respuesta.", "error");
+    }
   });
 };
 
 if (storageMode) {
-  storageMode.textContent = `Modo ${config.storageMode === "browser" ? "navegador" : config.storageMode}`;
+  storageMode.textContent =
+    inbox.storageMode === "api"
+      ? "Modo API Cloudflare"
+      : "Modo navegador local";
 }
 
 if (loginForm && loginFeedback) {
-  loginForm.addEventListener("submit", (event) => {
+  loginForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!loginForm.reportValidity()) {
@@ -234,14 +303,20 @@ if (loginForm && loginFeedback) {
 
     const password = `${new FormData(loginForm).get("password") || ""}`;
 
-    if (!inbox.loginAdmin(password)) {
-      loginFeedback.textContent = "La contraseña no es correcta.";
-      return;
-    }
+    try {
+      const success = await inbox.loginAdmin(password);
 
-    loginFeedback.textContent = "";
-    setAuthenticatedState(true);
-    renderMessages();
+      if (!success) {
+        loginFeedback.textContent = "La contraseña no es correcta.";
+        return;
+      }
+
+      loginFeedback.textContent = "";
+      setAuthenticatedState(true);
+      await loadMessages();
+    } catch (error) {
+      loginFeedback.textContent = error.message || "No pudimos iniciar sesión en este momento.";
+    }
   });
 }
 
@@ -250,8 +325,8 @@ logoutButton?.addEventListener("click", () => {
   setAuthenticatedState(false);
 });
 
-searchInput?.addEventListener("input", (event) => {
-  state.query = event.target.value.trim();
+searchInput?.addEventListener("input", () => {
+  state.query = searchInput.value.trim();
   renderMessages();
 });
 
@@ -268,5 +343,5 @@ setAuthenticatedState(inbox.isAdminAuthenticated());
 attachDashboardEvents();
 
 if (inbox.isAdminAuthenticated()) {
-  renderMessages();
+  loadMessages();
 }

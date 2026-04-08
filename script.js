@@ -40,7 +40,7 @@ const setSocialLinks = () => {
   });
 
   instagramLinks.forEach((link) => {
-    link.href = config.instagramUrl;
+    link.href = `${config.instagramUrl || "#"}`;
   });
 };
 
@@ -266,7 +266,7 @@ const handleContactSubmit = () => {
     return;
   }
 
-  contactForm.addEventListener("submit", (event) => {
+  contactForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     if (!contactForm.reportValidity()) {
@@ -284,19 +284,30 @@ const handleContactSubmit = () => {
       message: `${formData.get("message") || ""}`.trim()
     };
 
-    inbox.addMessage(payload);
+    try {
+      await inbox.submitMessage(payload);
 
-    if (config.whatsappNumber.trim()) {
-      window.open(inbox.buildWhatsAppUrl(buildFormMessage(payload)), "_blank", "noopener,noreferrer");
-      formFeedback.textContent = "Preparamos tu mensaje y abrimos WhatsApp para enviarlo directo. El panel privado local queda actualizado en este navegador.";
-    } else {
-      formFeedback.textContent = "Tu mensaje quedó guardado en el inbox local del sitio. Para recibirlo online en un inbox central en GitHub Pages, conecta un backend externo o configura WhatsApp.";
-    }
+      if (`${config.whatsappNumber || ""}`.trim()) {
+        window.open(inbox.buildWhatsAppUrl(buildFormMessage(payload)), "_blank", "noopener,noreferrer");
+        formFeedback.textContent =
+          inbox.storageMode === "api"
+            ? "Guardamos tu mensaje en el backend y abrimos WhatsApp para continuar la conversación."
+            : "Preparamos tu mensaje y abrimos WhatsApp para enviarlo directo. El panel privado local queda actualizado en este navegador.";
+      } else {
+        formFeedback.textContent =
+          inbox.storageMode === "api"
+            ? "Tu mensaje fue enviado correctamente al panel privado conectado al backend."
+            : "Tu mensaje quedó guardado en el inbox local del sitio. Configura la API para centralizar mensajes entre dispositivos.";
+      }
 
-    contactForm.reset();
+      contactForm.reset();
 
-    if (projectTypeSelect) {
-      projectTypeSelect.selectedIndex = 0;
+      if (projectTypeSelect) {
+        projectTypeSelect.selectedIndex = 0;
+      }
+    } catch (error) {
+      formFeedback.textContent = error.message || "No pudimos enviar tu mensaje en este momento.";
+      return;
     }
   });
 };

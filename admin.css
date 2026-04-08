@@ -333,6 +333,22 @@ button {
   border-radius: 28px;
 }
 
+.dashboard-feedback {
+  min-height: 1.5em;
+  margin: -6px 4px 2px;
+  padding-inline: 6px;
+  color: var(--muted);
+  font-size: 0.94rem;
+}
+
+.dashboard-feedback.is-success {
+  color: var(--cyan);
+}
+
+.dashboard-feedback.is-error {
+  color: #ff9db0;
+}
+
 .filter-group {
   display: flex;
   flex-wrap: wrap;

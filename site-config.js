@@ -2,8 +2,12 @@ window.CodeFlowConfig = Object.freeze({
   brandName: "CodeFlow Studio",
   whatsappNumber: "",
   instagramUrl: "https://instagram.com/tu-perfil",
+  // Set this to your deployed Worker URL, for example:
+  // "https://codeflow-studio-api.your-subdomain.workers.dev"
+  apiBaseUrl: "",
   adminPassword: "TBO2026",
-  storageMode: "browser",
+  // "auto" uses the API when apiBaseUrl is configured, otherwise falls back to browser storage.
+  storageMode: "auto",
   projectTypes: [
     "Landing Page Premium",
     "Sistema de Reservas",
