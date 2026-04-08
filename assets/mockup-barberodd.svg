@@ -1,0 +1,61 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgBarber" x1="132" y1="94" x2="1252" y2="804" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18110E"/>
+      <stop offset="1" stop-color="#09080B"/>
+    </linearGradient>
+    <linearGradient id="warm" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F6C469"/>
+      <stop offset="1" stop-color="#C9852B"/>
+    </linearGradient>
+    <filter id="amberGlow" x="-180" y="-180" width="1800" height="1300" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="88"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="900" rx="48" fill="#07070A"/>
+  <circle cx="1160" cy="170" r="170" fill="#F6C469" fill-opacity="0.16" filter="url(#amberGlow)"/>
+  <circle cx="250" cy="720" r="190" fill="#C9852B" fill-opacity="0.12" filter="url(#amberGlow)"/>
+
+  <rect x="86" y="72" width="1268" height="756" rx="36" fill="url(#bgBarber)" stroke="#2A201A"/>
+  <rect x="120" y="106" width="1200" height="58" rx="20" fill="#0E0B0A" stroke="#2B211C"/>
+  <circle cx="156" cy="135" r="6" fill="#F97316"/>
+  <circle cx="178" cy="135" r="6" fill="#FACC15"/>
+  <circle cx="200" cy="135" r="6" fill="#22C55E"/>
+  <text x="252" y="139" fill="#A99A8B" font-family="Arial, sans-serif" font-size="14">barberodd.com</text>
+
+  <rect x="120" y="196" width="1200" height="586" rx="30" fill="#0A0909" stroke="#241C19"/>
+  <rect x="120" y="196" width="1200" height="290" rx="30" fill="#0C0C0E"/>
+  <rect x="790" y="224" width="488" height="234" rx="26" fill="#161211" stroke="#362920"/>
+  <circle cx="1028" cy="340" r="118" fill="#1E1714"/>
+  <circle cx="1028" cy="340" r="96" fill="#141112"/>
+  <rect x="974" y="286" width="108" height="108" rx="54" fill="url(#warm)" fill-opacity="0.16" stroke="#8E5E28"/>
+  <path d="M996 358C1024 316 1060 298 1100 286" stroke="url(#warm)" stroke-width="10" stroke-linecap="round"/>
+  <path d="M964 392C992 348 1018 326 1044 314" stroke="#F6C469" stroke-width="10" stroke-linecap="round"/>
+
+  <text x="176" y="286" fill="#8F7D6C" font-family="Arial, sans-serif" font-size="18" letter-spacing="4">BARBERODD</text>
+  <text x="176" y="360" fill="#FDF7EF" font-family="Arial, sans-serif" font-size="58" font-weight="700">Estilo premium</text>
+  <text x="176" y="426" fill="#FDF7EF" font-family="Arial, sans-serif" font-size="58" font-weight="700">para una barbería</text>
+  <text x="176" y="462" fill="#A99A8B" font-family="Arial, sans-serif" font-size="19">Landing de alto impacto con identidad fuerte, estructura clara y foco total en reservas.</text>
+
+  <rect x="176" y="508" width="192" height="56" rx="28" fill="url(#warm)"/>
+  <text x="216" y="543" fill="#120E0C" font-family="Arial, sans-serif" font-size="18" font-weight="700">Reservar turno</text>
+  <rect x="386" y="508" width="182" height="56" rx="28" fill="#141110" stroke="#3A2C23"/>
+  <text x="430" y="543" fill="#F9F0E5" font-family="Arial, sans-serif" font-size="18" font-weight="700">Ver servicios</text>
+
+  <rect x="164" y="530" width="1112" height="210" rx="28" fill="#0E0B0B" stroke="#2A201A"/>
+  <rect x="196" y="570" width="322" height="134" rx="24" fill="#161211" stroke="#362920"/>
+  <text x="226" y="612" fill="#FDF7EF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Fade + barba</text>
+  <text x="226" y="640" fill="#A99A8B" font-family="Arial, sans-serif" font-size="16">Servicio premium con agendado simple y presencia de marca.</text>
+  <text x="226" y="686" fill="#F6C469" font-family="Arial, sans-serif" font-size="18" font-weight="700">45 min</text>
+
+  <rect x="559" y="570" width="322" height="134" rx="24" fill="#161211" stroke="#362920"/>
+  <text x="589" y="612" fill="#FDF7EF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Corte signature</text>
+  <text x="589" y="640" fill="#A99A8B" font-family="Arial, sans-serif" font-size="16">Sección enfocada en convertir visitas en reservas con claridad.</text>
+  <text x="589" y="686" fill="#F6C469" font-family="Arial, sans-serif" font-size="18" font-weight="700">Branding + CTA</text>
+
+  <rect x="922" y="570" width="322" height="134" rx="24" fill="#161211" stroke="#362920"/>
+  <text x="952" y="612" fill="#FDF7EF" font-family="Arial, sans-serif" font-size="24" font-weight="700">Agenda online</text>
+  <text x="952" y="640" fill="#A99A8B" font-family="Arial, sans-serif" font-size="16">Reservas rápidas, experiencia mobile-first y look de alto nivel.</text>
+  <text x="952" y="686" fill="#F6C469" font-family="Arial, sans-serif" font-size="18" font-weight="700">Conversión directa</text>
+</svg>

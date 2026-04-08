@@ -1,0 +1,59 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgFuture" x1="152" y1="104" x2="1252" y2="800" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#11254A"/>
+      <stop offset="1" stop-color="#060B15"/>
+    </linearGradient>
+    <linearGradient id="futureAccent" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#32D9FF"/>
+      <stop offset="1" stop-color="#1F6FFF"/>
+    </linearGradient>
+    <filter id="futureGlow" x="-200" y="-200" width="1840" height="1300" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="900" rx="48" fill="#04070D"/>
+  <circle cx="280" cy="730" r="180" fill="#1F6FFF" fill-opacity="0.18" filter="url(#futureGlow)"/>
+  <circle cx="1160" cy="150" r="170" fill="#32D9FF" fill-opacity="0.16" filter="url(#futureGlow)"/>
+
+  <rect x="88" y="72" width="1264" height="756" rx="36" fill="url(#bgFuture)" stroke="#233B6D"/>
+  <rect x="122" y="106" width="1196" height="58" rx="20" fill="#0A1324" stroke="#1B2D52"/>
+  <circle cx="158" cy="135" r="6" fill="#F97316"/>
+  <circle cx="180" cy="135" r="6" fill="#FACC15"/>
+  <circle cx="202" cy="135" r="6" fill="#22C55E"/>
+  <text x="254" y="139" fill="#97ADD0" font-family="Arial, sans-serif" font-size="14">codeflowstudio.dev/next-project</text>
+
+  <text x="158" y="250" fill="#32D9FF" font-family="Arial, sans-serif" font-size="18" letter-spacing="4">PROXIMO CASO</text>
+  <text x="158" y="334" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="62" font-weight="700">Tu negocio puede</text>
+  <text x="158" y="402" fill="#F5FAFF" font-family="Arial, sans-serif" font-size="62" font-weight="700">estar acá</text>
+  <text x="158" y="446" fill="#9FB4D1" font-family="Arial, sans-serif" font-size="20">Web premium, sistema de reservas, panel administrativo, automatización o un SaaS completo.</text>
+
+  <rect x="158" y="500" width="206" height="56" rx="28" fill="url(#futureAccent)"/>
+  <text x="196" y="535" fill="#06111F" font-family="Arial, sans-serif" font-size="18" font-weight="700">Solicitar proyecto</text>
+
+  <rect x="876" y="202" width="360" height="196" rx="28" fill="#0B162A" stroke="#24426F"/>
+  <text x="908" y="244" fill="#9FB4D1" font-family="Arial, sans-serif" font-size="16">Stack recomendado</text>
+  <text x="908" y="288" fill="#F4FAFF" font-family="Arial, sans-serif" font-size="28" font-weight="700">Landing + backend + panel</text>
+  <rect x="908" y="322" width="116" height="34" rx="17" fill="#10213B"/>
+  <rect x="1036" y="322" width="100" height="34" rx="17" fill="#10213B"/>
+  <rect x="1148" y="322" width="56" height="34" rx="17" fill="#10213B"/>
+  <text x="930" y="344" fill="#D4EDFF" font-family="Arial, sans-serif" font-size="14">UI premium</text>
+  <text x="1058" y="344" fill="#D4EDFF" font-family="Arial, sans-serif" font-size="14">APIs</text>
+  <text x="1166" y="344" fill="#D4EDFF" font-family="Arial, sans-serif" font-size="14">SEO</text>
+
+  <rect x="728" y="442" width="508" height="286" rx="30" fill="#091120" stroke="#233B6D"/>
+  <rect x="762" y="478" width="440" height="22" rx="11" fill="#142746"/>
+  <rect x="762" y="522" width="200" height="126" rx="22" fill="#10203A" stroke="#1F3E72"/>
+  <rect x="990" y="522" width="212" height="58" rx="22" fill="#10203A" stroke="#1F3E72"/>
+  <rect x="990" y="596" width="212" height="52" rx="22" fill="url(#futureAccent)" fill-opacity="0.18" stroke="#2360B7"/>
+  <rect x="762" y="668" width="440" height="24" rx="12" fill="#112340"/>
+  <text x="794" y="598" fill="#D8F4FF" font-family="Arial, sans-serif" font-size="16">Sistemas de reservas</text>
+  <text x="794" y="624" fill="#8FA8CA" font-family="Arial, sans-serif" font-size="14">Dashboard, usuarios, cobros y operación.</text>
+  <text x="1022" y="557" fill="#D8F4FF" font-family="Arial, sans-serif" font-size="16">Panel administrativo</text>
+  <text x="1022" y="628" fill="#F8FDFF" font-family="Arial, sans-serif" font-size="16">Automatizaciones y APIs</text>
+
+  <rect x="158" y="608" width="500" height="120" rx="28" fill="#0A1324" stroke="#1D355C"/>
+  <text x="192" y="652" fill="#F4FAFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Ideal para gimnasios, pádel, barberías, comercios y empresas</text>
+  <text x="192" y="686" fill="#9FB4D1" font-family="Arial, sans-serif" font-size="16">Diseñado para convertir visitas en clientes y ordenar tu operación con herramientas reales.</text>
+</svg>

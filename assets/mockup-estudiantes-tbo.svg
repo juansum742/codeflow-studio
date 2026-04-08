@@ -1,0 +1,83 @@
+<svg width="1440" height="900" viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="190" y1="80" x2="1220" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#132448"/>
+      <stop offset="1" stop-color="#050914"/>
+    </linearGradient>
+    <linearGradient id="cyanCard" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#32D9FF"/>
+      <stop offset="1" stop-color="#1F6FFF"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="228" y1="124" x2="1188" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F1B34"/>
+      <stop offset="1" stop-color="#07111F"/>
+    </linearGradient>
+    <filter id="glow" x="-200" y="-200" width="1840" height="1300" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="90"/>
+    </filter>
+  </defs>
+
+  <rect width="1440" height="900" rx="48" fill="#04070D"/>
+  <circle cx="260" cy="190" r="180" fill="#1F6FFF" fill-opacity="0.18" filter="url(#glow)"/>
+  <circle cx="1140" cy="720" r="180" fill="#32D9FF" fill-opacity="0.16" filter="url(#glow)"/>
+
+  <rect x="82" y="66" width="1276" height="768" rx="34" fill="url(#bg)" stroke="#8EB6FF" stroke-opacity="0.18"/>
+  <rect x="118" y="104" width="1204" height="58" rx="20" fill="#0B1322" stroke="#1A2B4F"/>
+  <circle cx="156" cy="133" r="6" fill="#F97316"/>
+  <circle cx="178" cy="133" r="6" fill="#FACC15"/>
+  <circle cx="200" cy="133" r="6" fill="#22C55E"/>
+  <rect x="234" y="118" width="302" height="28" rx="14" fill="#121E35"/>
+  <text x="260" y="137" fill="#93AACE" font-family="Arial, sans-serif" font-size="14">app.estudiantestbo.com/reservas</text>
+
+  <rect x="118" y="184" width="196" height="614" rx="28" fill="#08101C" stroke="#162643"/>
+  <rect x="156" y="220" width="122" height="52" rx="16" fill="#0F1B31"/>
+  <rect x="172" y="236" width="26" height="26" rx="8" fill="url(#cyanCard)"/>
+  <text x="212" y="253" fill="#F1F7FF" font-family="Arial, sans-serif" font-size="17" font-weight="700">TBÓ Gym</text>
+  <text x="156" y="320" fill="#F7FBFF" font-family="Arial, sans-serif" font-size="16" font-weight="700">Dashboard</text>
+  <text x="156" y="366" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Clases</text>
+  <text x="156" y="412" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Planes</text>
+  <text x="156" y="458" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Socios</text>
+  <text x="156" y="504" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Pagos</text>
+  <text x="156" y="550" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Reportes</text>
+  <rect x="146" y="299" width="140" height="38" rx="14" fill="#123168" stroke="#2455AB"/>
+
+  <rect x="346" y="184" width="976" height="614" rx="30" fill="url(#panel)" stroke="#162643"/>
+  <text x="394" y="246" fill="#F3F8FF" font-family="Arial, sans-serif" font-size="34" font-weight="700">Gym Estudiantes TBÓ</text>
+  <text x="394" y="282" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="18">Sistema de reservas, membresías y panel administrativo para la operación diaria.</text>
+
+  <rect x="394" y="326" width="276" height="126" rx="26" fill="#0B1628" stroke="#183257"/>
+  <text x="426" y="366" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="17">Clases reservadas hoy</text>
+  <text x="426" y="420" fill="#F7FBFF" font-family="Arial, sans-serif" font-size="44" font-weight="700">128</text>
+  <text x="541" y="420" fill="#32D9FF" font-family="Arial, sans-serif" font-size="18" font-weight="700">+18%</text>
+
+  <rect x="696" y="326" width="276" height="126" rx="26" fill="#0B1628" stroke="#183257"/>
+  <text x="728" y="366" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="17">Membresías activas</text>
+  <text x="728" y="420" fill="#F7FBFF" font-family="Arial, sans-serif" font-size="44" font-weight="700">346</text>
+  <text x="844" y="420" fill="#32D9FF" font-family="Arial, sans-serif" font-size="18" font-weight="700">Estable</text>
+
+  <rect x="998" y="326" width="276" height="126" rx="26" fill="url(#cyanCard)" fill-opacity="0.16" stroke="#2373D4"/>
+  <text x="1030" y="366" fill="#DDF7FF" font-family="Arial, sans-serif" font-size="17">Pagos del mes</text>
+  <text x="1030" y="420" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="44" font-weight="700">USD 4.2K</text>
+  <text x="1186" y="420" fill="#DDF7FF" font-family="Arial, sans-serif" font-size="18" font-weight="700">+9%</text>
+
+  <rect x="394" y="484" width="470" height="266" rx="28" fill="#081221" stroke="#183257"/>
+  <text x="428" y="528" fill="#F7FBFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Rendimiento semanal</text>
+  <text x="428" y="555" fill="#9BB0D1" font-family="Arial, sans-serif" font-size="16">Leads, reservas y asistencia.</text>
+  <path d="M446 688C483 646 537 598 592 620C648 642 678 566 744 586C777 596 801 620 830 618" stroke="url(#cyanCard)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M446 712C496 690 542 664 588 682C646 704 698 650 760 666C789 674 808 684 834 692" stroke="#2E4F89" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="592" cy="620" r="8" fill="#32D9FF"/>
+  <circle cx="744" cy="586" r="8" fill="#32D9FF"/>
+  <circle cx="830" cy="618" r="8" fill="#32D9FF"/>
+
+  <rect x="896" y="484" width="378" height="266" rx="28" fill="#081221" stroke="#183257"/>
+  <text x="930" y="528" fill="#F7FBFF" font-family="Arial, sans-serif" font-size="22" font-weight="700">Próximas clases</text>
+  <rect x="930" y="562" width="310" height="42" rx="16" fill="#0E1B31"/>
+  <text x="956" y="589" fill="#F4FAFF" font-family="Arial, sans-serif" font-size="16">Kick Boxing</text>
+  <text x="1145" y="589" fill="#32D9FF" font-family="Arial, sans-serif" font-size="15">18 cupos</text>
+  <rect x="930" y="620" width="310" height="42" rx="16" fill="#0E1B31"/>
+  <text x="956" y="647" fill="#F4FAFF" font-family="Arial, sans-serif" font-size="16">Funcional</text>
+  <text x="1157" y="647" fill="#32D9FF" font-family="Arial, sans-serif" font-size="15">12 cupos</text>
+  <rect x="930" y="678" width="310" height="42" rx="16" fill="#0E1B31"/>
+  <text x="956" y="705" fill="#F4FAFF" font-family="Arial, sans-serif" font-size="16">Spinning</text>
+  <text x="1157" y="705" fill="#32D9FF" font-family="Arial, sans-serif" font-size="15">8 cupos</text>
+</svg>
