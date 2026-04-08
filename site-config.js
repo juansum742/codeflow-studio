@@ -2,7 +2,7 @@ window.CodeFlowConfig = Object.freeze({
   brandName: "CodeFlow Studio",
   whatsappNumber: "",
   instagramUrl: "https://instagram.com/tu-perfil",
-  adminPassword: "codeflow-2026",
+  adminPassword: "TBO2026",
   storageMode: "browser",
   projectTypes: [
     "Landing Page Premium",
