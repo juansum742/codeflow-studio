@@ -748,41 +748,137 @@ code {
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
 }
 
 .project-card {
-  grid-column: span 4;
-  border-radius: 30px;
-}
-
-.project-card-featured {
-  grid-column: span 7;
-}
-
-.project-card:not(.project-card-featured) {
   display: grid;
+  grid-template-rows: auto 1fr;
+  height: 100%;
+  border-radius: 30px;
+  box-shadow:
+    var(--shadow-soft),
+    0 0 48px rgba(31, 111, 255, 0.08);
 }
 
 .project-media {
   margin: 0;
-  aspect-ratio: 16 / 11;
   overflow: hidden;
   border-bottom: 1px solid rgba(103, 176, 255, 0.12);
   background: linear-gradient(180deg, rgba(9, 16, 28, 0.8), rgba(6, 10, 18, 0.9));
 }
 
-.project-media img {
+.project-slider {
+  position: relative;
+  aspect-ratio: 16 / 10;
+}
+
+.project-track {
+  display: flex;
+  height: 100%;
+  transition: transform 380ms ease;
+  will-change: transform;
+}
+
+.project-slide {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.project-slide::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 36%;
+  background: linear-gradient(180deg, transparent, rgba(4, 8, 15, 0.28));
+  pointer-events: none;
+}
+
+.project-slide img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 480ms ease;
+}
+
+.project-card:hover .project-slide.is-active img {
+  transform: scale(1.035);
+}
+
+.project-controls {
+  position: absolute;
+  inset: auto 16px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  pointer-events: none;
+}
+
+.project-nav {
+  display: flex;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+.project-arrow,
+.project-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124, 189, 255, 0.18);
+  background: rgba(7, 12, 22, 0.72);
+  backdrop-filter: blur(12px);
+  color: var(--white);
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.project-arrow:hover,
+.project-arrow:focus-visible,
+.project-dot:hover,
+.project-dot:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(52, 217, 255, 0.42);
+  background: rgba(9, 17, 31, 0.9);
+}
+
+.project-arrow {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1rem;
+}
+
+.project-dots {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.project-dot {
+  width: 11px;
+  height: 11px;
+  padding: 0;
+  border-radius: 999px;
+}
+
+.project-dot.is-active {
+  width: 30px;
+  background: linear-gradient(135deg, rgba(52, 217, 255, 0.92), rgba(31, 111, 255, 0.92));
+  border-color: rgba(52, 217, 255, 0.5);
 }
 
 .project-content {
   display: grid;
   gap: 14px;
   padding: 24px;
+  align-content: start;
+  min-height: 208px;
 }
 
 .project-badge {
@@ -797,6 +893,19 @@ code {
   background: rgba(8, 13, 24, 0.54);
   font-size: 0.84rem;
   font-weight: 600;
+}
+
+.project-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.project-count {
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .strategy-layout {
@@ -997,9 +1106,7 @@ code {
   }
 
   .service-card,
-  .service-card-wide,
-  .project-card,
-  .project-card-featured {
+  .service-card-wide {
     grid-column: auto;
   }
 
@@ -1089,6 +1196,14 @@ code {
   .services-bento,
   .project-grid {
     grid-template-columns: 1fr;
+  }
+
+  .project-content {
+    min-height: auto;
+  }
+
+  .project-controls {
+    inset: auto 12px 12px;
   }
 
   .hero-brand,

@@ -1,4 +1,5 @@
 const config = window.CodeFlowConfig;
+const assetsManifest = window.CodeFlowAssetsManifest || [];
 const inbox = window.CodeFlowInbox;
 
 const header = document.querySelector(".site-header");
@@ -11,6 +12,8 @@ const portfolioGrid = document.querySelector("[data-portfolio-grid]");
 const contactForm = document.querySelector("[data-contact-form]");
 const formFeedback = document.querySelector("[data-form-feedback]");
 const projectTypeSelect = document.querySelector("[data-project-type-select]");
+
+const portfolioState = new Map();
 
 const setHeaderState = () => {
   if (!header) {
@@ -61,54 +64,167 @@ const fillProjectTypes = () => {
   });
 };
 
-const imageExists = (src) =>
-  new Promise((resolve) => {
-    const image = new Image();
+const normalizeText = (value) =>
+  `${value || ""}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 
-    image.onload = () => resolve(true);
-    image.onerror = () => resolve(false);
-    image.src = src;
-  });
+const encodeAssetPath = (path) => encodeURI(path).replaceAll("#", "%23");
 
-const resolveProjectImage = async (project) => {
-  for (const candidate of project.imageCandidates) {
-    // The first file that exists in assets wins over the fallback mockup.
-    if (await imageExists(candidate)) {
-      return candidate;
-    }
+const getProjectImageScore = (path) => {
+  const normalized = normalizeText(path);
+  let score = 100;
+
+  if (normalized.includes("final")) {
+    score -= 40;
   }
 
-  return project.fallbackImage;
+  if (normalized.includes("admin")) {
+    score += 15;
+  }
+
+  if (normalized.includes("mapa")) {
+    score += 20;
+  }
+
+  const match = normalized.match(/\b(\d+)\b/);
+
+  if (match) {
+    score += Number(match[1]);
+  }
+
+  return score;
 };
 
-const renderPortfolio = async () => {
+const buildPortfolioProjects = () => {
+  const imageAssets = assetsManifest.filter((assetPath) => /\.(png|jpe?g|webp)$/i.test(assetPath));
+
+  return config.portfolioProjects
+    .map((project) => {
+      const matches = imageAssets
+        .filter((assetPath) => {
+          const normalizedPath = normalizeText(assetPath);
+          return project.keywords.some((keyword) => normalizedPath.includes(normalizeText(keyword)));
+        })
+        .sort((left, right) => getProjectImageScore(left) - getProjectImageScore(right));
+
+      return {
+        ...project,
+        images: matches.map((assetPath) => encodeAssetPath(assetPath))
+      };
+    })
+    .filter((project) => project.images.length > 0);
+};
+
+const setSliderIndex = (sliderId, nextIndex) => {
+  const slider = document.querySelector(`[data-portfolio-slider="${sliderId}"]`);
+
+  if (!slider) {
+    return;
+  }
+
+  const slides = [...slider.querySelectorAll(".project-slide")];
+  const dots = [...slider.querySelectorAll(".project-dot")];
+  const safeIndex = ((nextIndex % slides.length) + slides.length) % slides.length;
+  const track = slider.querySelector(".project-track");
+
+  portfolioState.set(sliderId, safeIndex);
+
+  if (track) {
+    track.style.transform = `translateX(-${safeIndex * 100}%)`;
+  }
+
+  slides.forEach((slide, index) => {
+    slide.classList.toggle("is-active", index === safeIndex);
+  });
+
+  dots.forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === safeIndex);
+    dot.setAttribute("aria-current", index === safeIndex ? "true" : "false");
+  });
+};
+
+const renderPortfolio = () => {
   if (!portfolioGrid) {
     return;
   }
 
-  const resolvedProjects = await Promise.all(
-    config.portfolio.map(async (project) => ({
-      ...project,
-      image: await resolveProjectImage(project)
-    }))
-  );
+  const projects = buildPortfolioProjects();
 
-  portfolioGrid.innerHTML = resolvedProjects
-    .map(
-      (project) => `
-        <article class="glass-card project-card ${project.featured ? "project-card-featured" : ""}">
+  if (!projects.length) {
+    portfolioGrid.innerHTML = `
+      <article class="glass-card project-card">
+        <div class="project-content">
+          <span class="project-badge">Sin coincidencias</span>
+          <h3>Portfolio pendiente de imágenes válidas</h3>
+          <p>No se encontraron archivos en <code>assets</code> que coincidan con las reglas de nombres para BarberOdd o Gym Estudiantes TBÓ.</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  portfolioGrid.innerHTML = projects
+    .map((project) => {
+      const hasMultipleImages = project.images.length > 1;
+
+      return `
+        <article class="glass-card project-card">
           <figure class="project-media">
-            <img src="${project.image}" alt="${project.name}" loading="lazy" decoding="async">
+            <div class="project-slider" data-portfolio-slider="${project.slug}">
+              <div class="project-track">
+                ${project.images
+                  .map(
+                    (imagePath, index) => `
+                      <div class="project-slide ${index === 0 ? "is-active" : ""}">
+                        <img src="${imagePath}" alt="${project.name} - vista ${index + 1}" loading="lazy" decoding="async">
+                      </div>
+                    `
+                  )
+                  .join("")}
+              </div>
+              ${
+                hasMultipleImages
+                  ? `
+                    <div class="project-controls">
+                      <div class="project-nav">
+                        <button class="project-arrow" type="button" aria-label="Vista anterior" data-slider-prev="${project.slug}">&#8592;</button>
+                        <button class="project-arrow" type="button" aria-label="Vista siguiente" data-slider-next="${project.slug}">&#8594;</button>
+                      </div>
+                      <div class="project-dots">
+                        ${project.images
+                          .map(
+                            (_, index) => `
+                              <button class="project-dot ${index === 0 ? "is-active" : ""}" type="button" aria-label="Ir a la vista ${index + 1}" aria-current="${index === 0 ? "true" : "false"}" data-slider-dot="${project.slug}" data-slide-index="${index}"></button>
+                            `
+                          )
+                          .join("")}
+                      </div>
+                    </div>
+                  `
+                  : ""
+              }
+            </div>
           </figure>
           <div class="project-content">
-            <span class="project-badge">${project.badge}</span>
+            <div class="project-meta">
+              <span class="project-badge">${project.badge}</span>
+              <span class="project-count">${project.images.length} ${project.images.length === 1 ? "imagen" : "imágenes"}</span>
+            </div>
             <h3>${project.name}</h3>
             <p>${project.description}</p>
           </div>
         </article>
-      `
-    )
+      `;
+    })
     .join("");
+
+  projects.forEach((project) => {
+    if (project.images.length > 1) {
+      setSliderIndex(project.slug, 0);
+    }
+  });
 };
 
 const setupRevealObserver = () => {
@@ -203,6 +319,28 @@ document.addEventListener("click", (event) => {
 
   if (!header.contains(event.target)) {
     closeMenu();
+  }
+});
+
+portfolioGrid?.addEventListener("click", (event) => {
+  const previousButton = event.target.closest("[data-slider-prev]");
+  const nextButton = event.target.closest("[data-slider-next]");
+  const dotButton = event.target.closest("[data-slider-dot]");
+
+  if (previousButton) {
+    const sliderId = previousButton.dataset.sliderPrev;
+    setSliderIndex(sliderId, (portfolioState.get(sliderId) ?? 0) - 1);
+  }
+
+  if (nextButton) {
+    const sliderId = nextButton.dataset.sliderNext;
+    setSliderIndex(sliderId, (portfolioState.get(sliderId) ?? 0) + 1);
+  }
+
+  if (dotButton) {
+    const sliderId = dotButton.dataset.sliderDot;
+    const slideIndex = Number(dotButton.dataset.slideIndex || 0);
+    setSliderIndex(sliderId, slideIndex);
   }
 });
 
