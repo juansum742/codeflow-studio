@@ -4,7 +4,7 @@ window.CodeFlowConfig = Object.freeze({
   instagramUrl: "https://instagram.com/tu-perfil",
   // Set this to your deployed Worker URL, for example:
   // "https://codeflow-studio-api.your-subdomain.workers.dev"
-  apiBaseUrl: "",
+  apiBaseUrl: "https://codeflow-studio-api.juansum742.workers.dev",
   adminPassword: "TBO2026",
   // "auto" uses the API when apiBaseUrl is configured, otherwise falls back to browser storage.
   storageMode: "auto",
