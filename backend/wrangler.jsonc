@@ -11,7 +11,9 @@
     "NOTIFY_EMAIL_FROM": "",
     "NOTIFY_EMAIL_TO": "",
     "NOTIFY_WEBHOOK_URL": "",
-    "NOTIFY_WHATSAPP_WEBHOOK_URL": ""
+    "NOTIFY_WHATSAPP_WEBHOOK_URL": "",
+    "NOTIFY_WHATSAPP_TO": "whatsapp:+59892966252",
+    "TWILIO_WHATSAPP_FROM": ""
   },
   "d1_databases": [
     {

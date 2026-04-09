@@ -106,7 +106,9 @@
       message: `${message?.message || ""}`,
       status,
       read: statusImpliesRead(status),
-      replyDraft: `${message?.replyDraft || message?.reply_draft || ""}`
+      replyDraft: `${message?.replyDraft || message?.reply_draft || ""}`,
+      internalNotes: `${message?.internalNotes || message?.internal_notes || ""}`,
+      nextStep: `${message?.nextStep || message?.next_step || ""}`
     };
 
     const historySource = Array.isArray(message?.statusHistory)
@@ -155,7 +157,9 @@
       projectType: normalizeProjectType(payload.projectType),
       message: payload.message,
       status: DEFAULT_STATUS,
-      replyDraft: ""
+      replyDraft: "",
+      internalNotes: "",
+      nextStep: ""
     });
 
     baseMessage.statusHistory = createInitialHistory(baseMessage);
@@ -312,6 +316,14 @@
         nextMessage.replyDraft = `${patch.replyDraft || ""}`;
       }
 
+      if (patch.internalNotes !== undefined) {
+        nextMessage.internalNotes = `${patch.internalNotes || ""}`;
+      }
+
+      if (patch.nextStep !== undefined) {
+        nextMessage.nextStep = `${patch.nextStep || ""}`.trim();
+      }
+
       if (nextStatus !== nextMessage.status) {
         nextMessage.statusHistory = [
           normalizeHistoryEntry(
@@ -396,6 +408,28 @@
     return applyBrowserPatch(messageId, {
       replyDraft
     });
+  };
+
+  const updateLeadDetails = async (messageId, details = {}) => {
+    const patch = {
+      internalNotes: details.internalNotes,
+      nextStep: details.nextStep
+    };
+
+    if (storageMode === "api") {
+      const response = await apiRequest(`/api/admin/messages/${messageId}`, {
+        method: "PATCH",
+        auth: true,
+        json: patch
+      });
+
+      return normalizeMessage({
+        ...response.message,
+        history: response.history || []
+      });
+    }
+
+    return applyBrowserPatch(messageId, patch);
   };
 
   const deleteMessage = async (messageId) => {
@@ -545,6 +579,7 @@
     loginAdmin,
     logoutAdmin,
     setRead,
+    updateLeadDetails,
     setReplyDraft,
     setStatus,
     storageMode,

@@ -1,0 +1,3 @@
+ALTER TABLE messages ADD COLUMN internal_notes TEXT NOT NULL DEFAULT '';
+
+ALTER TABLE messages ADD COLUMN next_step TEXT NOT NULL DEFAULT '';

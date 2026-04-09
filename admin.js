@@ -28,7 +28,6 @@ const drawerContent = document.querySelector("[data-drawer-content]");
 const drawerCloseButton = document.querySelector("[data-drawer-close]");
 
 const DEFAULT_LEAD_STATUSES = inbox.leadStatuses || ["Nuevo", "Leído", "Respondido", "En negociación", "Cliente cerrado", "Archivado"];
-const QUICK_STATUS_ACTIONS = ["Leído", "Respondido", "En negociación", "Cliente cerrado", "Archivado"];
 const EMPTY_META = {
   leadStatuses: DEFAULT_LEAD_STATUSES,
   notificationChannels: {
@@ -37,6 +36,9 @@ const EMPTY_META = {
     email: false
   }
 };
+const DEFAULT_NEXT_STEPS = Array.isArray(config.leadNextSteps) && config.leadNextSteps.length
+  ? config.leadNextSteps
+  : ["Llamar", "Enviar demo", "Mandar presupuesto", "Agendar reunion", "Seguimiento"];
 
 const state = {
   query: "",
@@ -56,6 +58,18 @@ let feedbackTimeoutId = 0;
 const getLeadStatuses = () => {
   const statuses = state.meta?.leadStatuses;
   return Array.isArray(statuses) && statuses.length ? statuses : DEFAULT_LEAD_STATUSES;
+};
+
+const getNextStepOptions = (selectedValue = "") => {
+  const options = new Set(["", ...DEFAULT_NEXT_STEPS, `${selectedValue || ""}`.trim()]);
+  return [...options]
+    .map((option) => option.trim())
+    .filter((option, index, array) => array.indexOf(option) === index)
+    .map(
+      (option) =>
+        `<option value="${escapeHtml(option)}" ${option === `${selectedValue || ""}`.trim() ? "selected" : ""}>${escapeHtml(option || "Sin definir")}</option>`
+    )
+    .join("");
 };
 
 const normalizeComparableText = (value) =>
@@ -97,6 +111,25 @@ const getStatusLabel = (status) => {
       return "Negociación";
     default:
       return status;
+  }
+};
+
+const getQuickStatusActions = (status) => {
+  switch (status) {
+    case "Nuevo":
+      return ["Leído", "Respondido", "En negociación"];
+    case "Leído":
+      return ["Respondido", "En negociación", "Archivado"];
+    case "Respondido":
+      return ["En negociación", "Cliente cerrado", "Archivado"];
+    case "En negociación":
+      return ["Cliente cerrado", "Archivado"];
+    case "Cliente cerrado":
+      return ["Archivado"];
+    case "Archivado":
+      return ["Nuevo"];
+    default:
+      return ["Leído", "Respondido", "En negociación"];
   }
 };
 
@@ -217,15 +250,15 @@ const renderNotificationPills = () => {
   const pills = [
     {
       enabled: channels.whatsappWebhook,
-      label: channels.whatsappWebhook ? "WhatsApp webhook activo" : "WhatsApp webhook listo"
+      label: channels.whatsappWebhook ? "WhatsApp automatico activo" : "WhatsApp automatico listo"
     },
     {
       enabled: channels.email,
-      label: channels.email ? "Email API activo" : "Email API listo"
+      label: channels.email ? "Email automatico activo" : "Email automatico listo"
     },
     {
       enabled: channels.webhook,
-      label: channels.webhook ? "Webhook general activo" : "Webhook general listo"
+      label: channels.webhook ? "Webhook comercial activo" : "Webhook comercial listo"
     }
   ];
 
@@ -303,7 +336,8 @@ const renderEmptyState = (text) => {
 };
 
 const buildQuickActions = (message) => {
-  const statusButtons = QUICK_STATUS_ACTIONS.filter((status) => status !== message.status)
+  const statusButtons = getQuickStatusActions(message.status)
+    .filter((status) => status !== message.status)
     .map(
       (status) =>
         `<button class="action-button" type="button" data-quick-status="${escapeHtml(status)}" data-message-id="${escapeHtml(message.id)}">${escapeHtml(getStatusLabel(status))}</button>`
@@ -337,6 +371,7 @@ const renderMessages = () => {
     .map((message) => {
       const instagramUrl = normalizeInstagramUrl(message.instagram);
       const instagramText = message.instagram ? `Instagram: ${message.instagram}` : "Instagram no especificado";
+      const nextStep = `${message.nextStep || ""}`.trim();
 
       return `
         <article class="lead-row ${message.status === "Nuevo" ? "is-new" : ""} ${state.selectedLeadId === message.id ? "is-active" : ""}" data-open-detail="${escapeHtml(message.id)}" tabindex="0">
@@ -349,6 +384,7 @@ const renderMessages = () => {
             <div class="lead-cell">
               <div class="lead-project">${escapeHtml(message.projectType)}</div>
               <div class="lead-secondary">${escapeHtml(message.message.slice(0, 72))}${message.message.length > 72 ? "..." : ""}</div>
+              ${nextStep ? `<div class="lead-follow-up">Proximo paso: ${escapeHtml(nextStep)}</div>` : ""}
             </div>
 
             <div class="lead-cell lead-contact">
@@ -395,6 +431,7 @@ const renderDrawer = () => {
   const instagramUrl = normalizeInstagramUrl(lead.instagram);
   const whatsappReplyUrl = inbox.buildWhatsAppUrl(inbox.buildReplyText(lead), lead.whatsapp);
   const leadStatuses = getLeadStatuses();
+  const nextStepOptions = getNextStepOptions(lead.nextStep);
 
   drawerContent.innerHTML = `
     <section class="drawer-header">
@@ -423,7 +460,28 @@ const renderDrawer = () => {
         <span>Instagram</span>
         <strong>${instagramUrl ? `<a href="${escapeHtml(instagramUrl)}" target="_blank" rel="noreferrer">${escapeHtml(lead.instagram)}</a>` : "No especificado"}</strong>
       </article>
+      <article class="meta-card">
+        <span>Proximo paso</span>
+        <strong>${escapeHtml(lead.nextStep || "Sin definir")}</strong>
+      </article>
     </section>
+
+    <form class="reply-panel planning-panel" data-lead-details-form="${escapeHtml(lead.id)}">
+      <span class="section-label">Seguimiento comercial</span>
+      <label class="field">
+        <span>Proximo paso</span>
+        <select name="nextStep">
+          ${nextStepOptions}
+        </select>
+      </label>
+      <label class="field">
+        <span>Notas internas</span>
+        <textarea name="internalNotes" placeholder="Ej: presupuesto enviado, reunion pendiente, cliente frio, seguimiento de cierre.">${escapeHtml(lead.internalNotes || "")}</textarea>
+      </label>
+      <div class="reply-tools reply-tools-compact">
+        <button class="action-button" type="submit">Guardar seguimiento</button>
+      </div>
+    </form>
 
     <section class="drawer-section">
       <span class="section-label">Mensaje completo</span>
@@ -607,6 +665,28 @@ const saveReplyDraft = async (messageId, draft) => {
   }
 };
 
+const saveLeadDetails = async (messageId, internalNotes, nextStep) => {
+  try {
+    const updatedLead = await inbox.updateLeadDetails(messageId, {
+      internalNotes,
+      nextStep
+    });
+    await loadDashboardData();
+
+    if (state.selectedLeadId === messageId) {
+      state.selectedLead = updatedLead;
+      state.selectedHistory = updatedLead.statusHistory || state.selectedHistory;
+      renderDrawer();
+    }
+
+    setDashboardFeedback("Seguimiento guardado correctamente.", "success");
+  } catch (error) {
+    if (!handleSessionError(error)) {
+      setDashboardFeedback(error.message || "No pudimos guardar el seguimiento.", "error");
+    }
+  }
+};
+
 const copyReply = async (lead) => {
   try {
     await navigator.clipboard.writeText(inbox.buildReplyText(lead));
@@ -647,7 +727,7 @@ const exportCsv = () => {
     return;
   }
 
-  const header = ["nombre", "negocio", "whatsapp", "instagram", "tipo proyecto", "mensaje", "estado", "fecha"];
+  const header = ["nombre", "negocio", "whatsapp", "instagram", "tipo proyecto", "mensaje", "estado", "proximo paso", "notas internas", "fecha"];
   const rows = filteredMessages.map((message) =>
     [
       message.name,
@@ -657,6 +737,8 @@ const exportCsv = () => {
       message.projectType,
       message.message,
       message.status,
+      message.nextStep,
+      message.internalNotes,
       message.createdAt
     ]
       .map(escapeCsv)
@@ -718,16 +800,28 @@ const handleDrawerClick = async (event) => {
 
 const handleDrawerSubmit = async (event) => {
   const replyForm = event.target.closest("[data-reply-form]");
+  const detailsForm = event.target.closest("[data-lead-details-form]");
 
-  if (!replyForm) {
+  if (replyForm) {
+    event.preventDefault();
+
+    const messageId = replyForm.dataset.replyForm;
+    const draft = new FormData(replyForm).get("replyDraft");
+    await saveReplyDraft(messageId, `${draft || ""}`);
     return;
   }
 
-  event.preventDefault();
+  if (detailsForm) {
+    event.preventDefault();
 
-  const messageId = replyForm.dataset.replyForm;
-  const draft = new FormData(replyForm).get("replyDraft");
-  await saveReplyDraft(messageId, `${draft || ""}`);
+    const messageId = detailsForm.dataset.leadDetailsForm;
+    const formData = new FormData(detailsForm);
+    await saveLeadDetails(
+      messageId,
+      `${formData.get("internalNotes") || ""}`,
+      `${formData.get("nextStep") || ""}`
+    );
+  }
 };
 
 const handleListKeydown = async (event) => {
@@ -750,7 +844,7 @@ const handleListKeydown = async (event) => {
 };
 
 if (storageMode) {
-  storageMode.textContent = inbox.storageMode === "api" ? "Modo API Cloudflare" : "Modo navegador local";
+  storageMode.textContent = inbox.storageMode === "api" ? "CRM conectado" : "Modo local de respaldo";
 }
 
 populateStatusFilter();

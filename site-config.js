@@ -1,12 +1,10 @@
 window.CodeFlowConfig = Object.freeze({
   brandName: "CodeFlow Studio",
-  whatsappNumber: "",
-  instagramUrl: "https://instagram.com/tu-perfil",
-  // Set this to your deployed Worker URL, for example:
-  // "https://codeflow-studio-api.your-subdomain.workers.dev"
+  whatsappNumber: "59892966252",
+  whatsappLabel: "092 966 252",
+  instagramUrl: "https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr",
   apiBaseUrl: "https://codeflow-studio-api.juansum742.workers.dev",
   adminPassword: "TBO2026",
-  // "auto" uses the API when apiBaseUrl is configured, otherwise falls back to browser storage.
   storageMode: "auto",
   projectTypes: [
     "Landing Page Premium",
@@ -17,19 +15,28 @@ window.CodeFlowConfig = Object.freeze({
     "Plataforma SaaS",
     "Software a medida"
   ],
+  leadNextSteps: [
+    "Llamar",
+    "Enviar demo",
+    "Mandar presupuesto",
+    "Agendar reunion",
+    "Seguimiento",
+    "Esperar respuesta",
+    "Cerrar propuesta"
+  ],
   portfolioProjects: [
     {
       slug: "estudiantes-tbo",
       name: "Gym Estudiantes TBÓ",
       badge: "Sistema premium",
-      description: "Web y pantallas del ecosistema digital del gimnasio, con foco en imagen, horarios, reserva y panel administrativo.",
+      description: "Plataforma visual y operativa para mejorar reservas, ordenar la gestion interna y proyectar una imagen profesional del gimnasio.",
       keywords: ["gym", "estudiantes", "tbo", "tbó"]
     },
     {
       slug: "barberodd",
       name: "BarberOdd",
       badge: "Landing premium",
-      description: "Landing con branding fuerte, reserva directa por WhatsApp, información clara del local y una experiencia visual más aspiracional.",
+      description: "Landing comercial enfocada en mostrar marca, generar consultas y facilitar reservas directas por WhatsApp.",
       keywords: ["barberia", "barberodd"]
     }
   ]

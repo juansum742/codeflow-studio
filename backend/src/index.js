@@ -16,7 +16,9 @@ const FIELD_LIMITS = {
   projectType: 80,
   message: 4000,
   replyDraft: 4000,
-  statusNote: 240
+  statusNote: 240,
+  internalNotes: 4000,
+  nextStep: 180
 };
 
 const STATUS_ALIASES = LEAD_STATUSES.reduce((map, status) => {
@@ -109,7 +111,9 @@ const normalizeMessage = (row) => {
     message: row.message,
     status,
     read: statusImpliesRead(status),
-    replyDraft: row.reply_draft
+    replyDraft: row.reply_draft,
+    internalNotes: row.internal_notes,
+    nextStep: row.next_step
   };
 };
 
@@ -220,7 +224,7 @@ const validateMessagePayload = (payload) => {
   }
 
   for (const [field, limit] of Object.entries(FIELD_LIMITS)) {
-    if (field === "replyDraft" || field === "statusNote") {
+    if (field === "replyDraft" || field === "statusNote" || field === "internalNotes" || field === "nextStep") {
       continue;
     }
 
@@ -248,9 +252,25 @@ const validateStatusNote = (value) => {
   return "";
 };
 
+const validateInternalNotes = (value) => {
+  if (`${value || ""}`.trim().length > FIELD_LIMITS.internalNotes) {
+    return `Las notas internas superan el máximo permitido de ${FIELD_LIMITS.internalNotes} caracteres.`;
+  }
+
+  return "";
+};
+
+const validateNextStep = (value) => {
+  if (`${value || ""}`.trim().length > FIELD_LIMITS.nextStep) {
+    return `El próximo paso supera el máximo permitido de ${FIELD_LIMITS.nextStep} caracteres.`;
+  }
+
+  return "";
+};
+
 const getMessageById = async (env, messageId) => {
   const result = await env.DB.prepare(
-    `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
+    `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft, internal_notes, next_step
      FROM messages
      WHERE id = ?`
   )
@@ -291,9 +311,17 @@ const insertStatusHistory = async (env, entry) => {
     .run();
 };
 
+const hasTwilioWhatsAppConfig = (env) =>
+  Boolean(
+    `${env.TWILIO_ACCOUNT_SID || ""}`.trim() &&
+      `${env.TWILIO_AUTH_TOKEN || ""}`.trim() &&
+      `${env.TWILIO_WHATSAPP_FROM || ""}`.trim() &&
+      `${env.NOTIFY_WHATSAPP_TO || ""}`.trim()
+  );
+
 const getNotificationChannels = (env) => ({
   webhook: Boolean(`${env.NOTIFY_WEBHOOK_URL || ""}`.trim()),
-  whatsappWebhook: Boolean(`${env.NOTIFY_WHATSAPP_WEBHOOK_URL || ""}`.trim()),
+  whatsappWebhook: Boolean(`${env.NOTIFY_WHATSAPP_WEBHOOK_URL || ""}`.trim()) || hasTwilioWhatsAppConfig(env),
   email: Boolean(`${env.RESEND_API_KEY || ""}`.trim() && `${env.NOTIFY_EMAIL_TO || ""}`.trim() && `${env.NOTIFY_EMAIL_FROM || ""}`.trim())
 });
 
@@ -334,6 +362,54 @@ const sendWebhookNotification = async (env, url, message, channel) => {
   });
 };
 
+const normalizeTwilioWhatsAppAddress = (value) => {
+  const input = `${value || ""}`.trim();
+
+  if (!input) {
+    return "";
+  }
+
+  return input.startsWith("whatsapp:") ? input : `whatsapp:${input}`;
+};
+
+const sendTwilioWhatsAppNotification = async (env, message) => {
+  if (!hasTwilioWhatsAppConfig(env)) {
+    return;
+  }
+
+  const body = [
+    "Nuevo lead para CodeFlow Studio",
+    "",
+    `Nombre: ${message.name}`,
+    `Negocio: ${message.business}`,
+    `Tipo de proyecto: ${message.projectType}`,
+    `WhatsApp: ${message.whatsapp}`,
+    "",
+    "Mensaje:",
+    message.message
+  ].join("\n");
+
+  const response = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_SID}/Messages.json`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${btoa(`${env.TWILIO_ACCOUNT_SID}:${env.TWILIO_AUTH_TOKEN}`)}`,
+        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body: new URLSearchParams({
+        From: normalizeTwilioWhatsAppAddress(env.TWILIO_WHATSAPP_FROM),
+        To: normalizeTwilioWhatsAppAddress(env.NOTIFY_WHATSAPP_TO),
+        Body: body
+      })
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Twilio WhatsApp notification failed with ${response.status}`);
+  }
+};
+
 const sendEmailNotification = async (env, message) => {
   if (!getNotificationChannels(env).email) {
     return;
@@ -371,6 +447,7 @@ const notifyLead = async (env, message) => {
   const tasks = [
     sendWebhookNotification(env, env.NOTIFY_WEBHOOK_URL, message, "generic-webhook"),
     sendWebhookNotification(env, env.NOTIFY_WHATSAPP_WEBHOOK_URL, message, "whatsapp-webhook"),
+    sendTwilioWhatsAppNotification(env, message),
     sendEmailNotification(env, message)
   ];
 
@@ -421,13 +498,15 @@ export default {
         message: `${payload.message}`.trim(),
         status: DEFAULT_STATUS,
         read: false,
-        replyDraft: ""
+        replyDraft: "",
+        internalNotes: "",
+        nextStep: ""
       };
 
       await env.DB.prepare(
         `INSERT INTO messages (
-          id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft, internal_notes, next_step
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
         .bind(
           message.id,
@@ -441,7 +520,9 @@ export default {
           message.message,
           message.status,
           0,
-          message.replyDraft
+          message.replyDraft,
+          message.internalNotes,
+          message.nextStep
         )
         .run();
 
@@ -487,7 +568,7 @@ export default {
 
     if (path === "/api/admin/messages" && request.method === "GET") {
       const result = await env.DB.prepare(
-        `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
+        `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft, internal_notes, next_step
          FROM messages
          ORDER BY datetime(created_at) DESC`
       ).all();
@@ -524,8 +605,12 @@ export default {
       const payload = (await readJson(request)) || {};
       const requestedStatus = payload.status === undefined ? undefined : resolveStatusInput(payload.status);
       const nextReplyDraft = payload.replyDraft === undefined ? existing.replyDraft : `${payload.replyDraft || ""}`;
+      const nextInternalNotes = payload.internalNotes === undefined ? existing.internalNotes : `${payload.internalNotes || ""}`;
+      const nextNextStep = payload.nextStep === undefined ? existing.nextStep : `${payload.nextStep || ""}`.trim();
       const statusNote = `${payload.statusNote || ""}`.trim();
       const replyDraftError = validateReplyDraft(nextReplyDraft);
+      const internalNotesError = validateInternalNotes(nextInternalNotes);
+      const nextStepError = validateNextStep(nextNextStep);
       const statusNoteError = validateStatusNote(statusNote);
       const updatedAt = new Date().toISOString();
 
@@ -535,6 +620,14 @@ export default {
 
       if (replyDraftError) {
         return createResponse(request, env, { error: replyDraftError }, 400);
+      }
+
+      if (internalNotesError) {
+        return createResponse(request, env, { error: internalNotesError }, 400);
+      }
+
+      if (nextStepError) {
+        return createResponse(request, env, { error: nextStepError }, 400);
       }
 
       if (statusNoteError) {
@@ -553,10 +646,10 @@ export default {
 
       await env.DB.prepare(
         `UPDATE messages
-         SET updated_at = ?, status = ?, is_read = ?, reply_draft = ?
+         SET updated_at = ?, status = ?, is_read = ?, reply_draft = ?, internal_notes = ?, next_step = ?
          WHERE id = ?`
       )
-        .bind(updatedAt, nextStatus, nextRead ? 1 : 0, nextReplyDraft, messageId)
+        .bind(updatedAt, nextStatus, nextRead ? 1 : 0, nextReplyDraft, nextInternalNotes, nextNextStep, messageId)
         .run();
 
       if (nextStatus !== existing.status) {
@@ -576,7 +669,9 @@ export default {
           updatedAt,
           status: nextStatus,
           read: nextRead,
-          replyDraft: nextReplyDraft
+          replyDraft: nextReplyDraft,
+          internalNotes: nextInternalNotes,
+          nextStep: nextNextStep
         },
         history: await getMessageHistory(env, messageId)
       });

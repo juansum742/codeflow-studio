@@ -313,7 +313,7 @@ code {
 
 .brand {
   flex: 0 0 auto;
-  width: min(264px, 48vw);
+  width: min(236px, 44vw);
 }
 
 .desktop-nav,
@@ -409,36 +409,52 @@ code {
 }
 
 .hero {
-  padding: 54px 0 92px;
+  padding: 42px 0 92px;
 }
 
 .hero-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(360px, 0.98fr);
+  grid-template-columns: minmax(0, 1.04fr) minmax(360px, 0.96fr);
   gap: clamp(28px, 4vw, 52px);
   align-items: center;
 }
 
+.hero-copy {
+  display: grid;
+  align-content: start;
+}
+
 .hero-brand {
   display: inline-grid;
-  gap: 16px;
-  max-width: 440px;
-  margin-bottom: 24px;
+  gap: 12px;
+  max-width: 520px;
+  margin-bottom: 22px;
 }
 
-.hero-brand img {
-  width: min(280px, 56vw);
-  height: auto;
+.hero-brand-tag {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 36px;
+  align-items: center;
+  padding: 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(100, 176, 255, 0.22);
+  background: linear-gradient(135deg, rgba(52, 217, 255, 0.14), rgba(31, 111, 255, 0.18));
+  color: var(--white);
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.hero-brand span {
-  max-width: 360px;
+.hero-brand span:not(.hero-brand-tag) {
+  max-width: 430px;
   color: var(--muted-strong);
   font-size: 0.98rem;
 }
 
 .hero h1 {
-  max-width: 11ch;
+  max-width: 12ch;
   font-size: clamp(3.2rem, 8vw, 6.1rem);
 }
 
@@ -461,6 +477,7 @@ code {
 
 .hero-actions {
   margin-top: 32px;
+  align-items: center;
 }
 
 .hero-clients {
@@ -491,6 +508,7 @@ code {
 .proof-card {
   padding: 22px;
   border-radius: 24px;
+  min-height: 100%;
 }
 
 .proof-card strong {
@@ -991,6 +1009,12 @@ code {
   align-items: start;
 }
 
+.contact-rail {
+  display: grid;
+  align-content: start;
+  gap: 18px;
+}
+
 .contact-note-card {
   margin-top: 24px;
   padding: 24px;
@@ -1142,6 +1166,10 @@ code {
     padding-top: 36px;
   }
 
+  .hero-brand {
+    margin-bottom: 18px;
+  }
+
   .hero-stage {
     min-height: 560px;
   }
@@ -1217,6 +1245,10 @@ code {
   .contact-note-card,
   .message-form {
     padding-inline: 22px;
+  }
+
+  .hero-brand {
+    padding-inline: 0;
   }
 
   .window-url {

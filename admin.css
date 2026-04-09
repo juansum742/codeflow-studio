@@ -563,6 +563,13 @@ button {
   font-weight: 600;
 }
 
+.lead-follow-up {
+  margin-top: 8px;
+  color: var(--cyan);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
 .lead-contact {
   display: grid;
   gap: 6px;
@@ -704,6 +711,10 @@ button {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.drawer-meta-grid .meta-card:last-child {
+  grid-column: span 2;
+}
+
 .meta-card,
 .drawer-section,
 .reply-panel,
@@ -749,8 +760,16 @@ button {
   padding: 16px;
 }
 
+.planning-panel textarea {
+  min-height: 140px;
+}
+
 .reply-tools {
   grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.reply-tools-compact {
+  grid-template-columns: 1fr;
 }
 
 .timeline {
@@ -852,6 +871,10 @@ button {
   .status-action-grid,
   .reply-tools {
     grid-template-columns: 1fr;
+  }
+
+  .drawer-meta-grid .meta-card:last-child {
+    grid-column: auto;
   }
 
   .stats-grid {

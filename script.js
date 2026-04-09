@@ -33,7 +33,7 @@ const closeMenu = () => {
 };
 
 const setSocialLinks = () => {
-  const baseWhatsApp = inbox.buildWhatsAppUrl("Hola CodeFlow Studio, quiero solicitar una propuesta.");
+  const baseWhatsApp = inbox.buildWhatsAppUrl("Hola CodeFlow Studio, quiero mejorar mi negocio con una web o sistema premium.");
 
   whatsappLinks.forEach((link) => {
     link.href = baseWhatsApp;
@@ -156,9 +156,9 @@ const renderPortfolio = () => {
     portfolioGrid.innerHTML = `
       <article class="glass-card project-card">
         <div class="project-content">
-          <span class="project-badge">Sin coincidencias</span>
-          <h3>Portfolio pendiente de imágenes válidas</h3>
-          <p>No se encontraron archivos en <code>assets</code> que coincidan con las reglas de nombres para BarberOdd o Gym Estudiantes TBÓ.</p>
+          <span class="project-badge">Pronto</span>
+          <h3>Nuevos proyectos en camino</h3>
+          <p>Estamos preparando nuevos casos para mostrar mas trabajos, resultados y soluciones desarrolladas para distintos negocios.</p>
         </div>
       </article>
     `;
@@ -289,15 +289,9 @@ const handleContactSubmit = () => {
 
       if (`${config.whatsappNumber || ""}`.trim()) {
         window.open(inbox.buildWhatsAppUrl(buildFormMessage(payload)), "_blank", "noopener,noreferrer");
-        formFeedback.textContent =
-          inbox.storageMode === "api"
-            ? "Guardamos tu mensaje en el backend y abrimos WhatsApp para continuar la conversación."
-            : "Preparamos tu mensaje y abrimos WhatsApp para enviarlo directo. El panel privado local queda actualizado en este navegador.";
+        formFeedback.textContent = "Recibimos tu consulta y abrimos WhatsApp para que puedas continuar la conversacion al instante.";
       } else {
-        formFeedback.textContent =
-          inbox.storageMode === "api"
-            ? "Tu mensaje fue enviado correctamente al panel privado conectado al backend."
-            : "Tu mensaje quedó guardado en el inbox local del sitio. Configura la API para centralizar mensajes entre dispositivos.";
+        formFeedback.textContent = "Recibimos tu consulta correctamente. Te responderemos pronto con una propuesta clara.";
       }
 
       contactForm.reset();
