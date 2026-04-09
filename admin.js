@@ -26,6 +26,10 @@ const drawer = document.querySelector("[data-lead-drawer]");
 const drawerBackdrop = document.querySelector("[data-drawer-backdrop]");
 const drawerContent = document.querySelector("[data-drawer-content]");
 const drawerCloseButton = document.querySelector("[data-drawer-close]");
+const refreshButton = document.querySelector("[data-refresh-button]");
+const refreshLabel = document.querySelector("[data-refresh-label]");
+const newBadge = document.querySelector("[data-new-badge]");
+const adminToast = document.querySelector("[data-admin-toast]");
 
 const DEFAULT_LEAD_STATUSES = inbox.leadStatuses || ["Nuevo", "Leído", "Respondido", "En negociación", "Cliente cerrado", "Archivado"];
 const EMPTY_META = {
@@ -39,6 +43,7 @@ const EMPTY_META = {
 const DEFAULT_NEXT_STEPS = Array.isArray(config.leadNextSteps) && config.leadNextSteps.length
   ? config.leadNextSteps
   : ["Llamar", "Enviar demo", "Mandar presupuesto", "Agendar reunion", "Seguimiento"];
+const POLL_INTERVAL_MS = 8000;
 
 const state = {
   query: "",
@@ -50,10 +55,88 @@ const state = {
   meta: EMPTY_META,
   selectedLeadId: "",
   selectedLead: null,
-  selectedHistory: []
+  selectedHistory: [],
+  freshLeadIds: []
 };
 
 let feedbackTimeoutId = 0;
+let toastTimeoutId = 0;
+let freshLeadTimeoutId = 0;
+let refreshIntervalId = 0;
+let isRefreshing = false;
+let hasLoadedOnce = false;
+
+const setRefreshState = (isLoading, label = "Recargar mensajes") => {
+  if (refreshButton) {
+    refreshButton.classList.toggle("is-loading", isLoading);
+    refreshButton.disabled = isLoading;
+  }
+
+  if (refreshLabel) {
+    refreshLabel.textContent = label;
+  }
+
+  messagesList?.setAttribute("aria-busy", String(isLoading));
+};
+
+const showToast = (text = "", tone = "success") => {
+  if (!adminToast) {
+    return;
+  }
+
+  window.clearTimeout(toastTimeoutId);
+  adminToast.textContent = text;
+  adminToast.classList.remove("is-hidden");
+  adminToast.classList.add("is-visible");
+  adminToast.classList.toggle("is-success", tone === "success");
+  adminToast.classList.toggle("is-error", tone === "error");
+
+  toastTimeoutId = window.setTimeout(() => {
+    adminToast.classList.remove("is-visible", "is-success", "is-error");
+    adminToast.classList.add("is-hidden");
+    adminToast.textContent = "";
+  }, 2600);
+};
+
+const updateNewBadge = (count) => {
+  if (!newBadge) {
+    return;
+  }
+
+  const total = Number(count) || 0;
+  newBadge.classList.toggle("is-empty", total === 0);
+  newBadge.textContent = total === 0 ? "Sin nuevos" : `${total} ${total === 1 ? "nuevo" : "nuevos"}`;
+};
+
+const setFreshLeadIds = (ids = []) => {
+  window.clearTimeout(freshLeadTimeoutId);
+  state.freshLeadIds = ids;
+
+  if (!ids.length) {
+    return;
+  }
+
+  freshLeadTimeoutId = window.setTimeout(() => {
+    state.freshLeadIds = [];
+    renderMessages();
+  }, 6000);
+};
+
+const stopAutoRefresh = () => {
+  window.clearInterval(refreshIntervalId);
+  refreshIntervalId = 0;
+};
+
+const startAutoRefresh = () => {
+  stopAutoRefresh();
+  refreshIntervalId = window.setInterval(() => {
+    if (!inbox.isAdminAuthenticated() || document.hidden) {
+      return;
+    }
+
+    loadDashboardData({ silent: true, source: "poll" });
+  }, POLL_INTERVAL_MS);
+};
 
 const getLeadStatuses = () => {
   const statuses = state.meta?.leadStatuses;
@@ -170,6 +253,7 @@ const handleSessionError = (error) => {
     return false;
   }
 
+  stopAutoRefresh();
   inbox.logoutAdmin();
   closeDrawer();
   setAuthenticatedState(false);
@@ -200,6 +284,8 @@ const updateStats = (messages) => {
   if (statCloseRate) {
     statCloseRate.textContent = `${stats.closeRate}%`;
   }
+
+  updateNewBadge(stats.newLeads);
 };
 
 const populateStatusFilter = () => {
@@ -372,9 +458,10 @@ const renderMessages = () => {
       const instagramUrl = normalizeInstagramUrl(message.instagram);
       const instagramText = message.instagram ? `Instagram: ${message.instagram}` : "Instagram no especificado";
       const nextStep = `${message.nextStep || ""}`.trim();
+      const isFresh = state.freshLeadIds.includes(message.id);
 
       return `
-        <article class="lead-row ${message.status === "Nuevo" ? "is-new" : ""} ${state.selectedLeadId === message.id ? "is-active" : ""}" data-open-detail="${escapeHtml(message.id)}" tabindex="0">
+        <article class="lead-row ${message.status === "Nuevo" ? "is-new" : ""} ${state.selectedLeadId === message.id ? "is-active" : ""} ${isFresh ? "is-fresh" : ""}" data-open-detail="${escapeHtml(message.id)}" tabindex="0">
           <div class="lead-main">
             <div class="lead-cell lead-cell-primary">
               <span class="lead-name">${escapeHtml(message.name)}</span>
@@ -597,12 +684,23 @@ const syncSelectedLead = () => {
   }
 };
 
-const loadDashboardData = async () => {
+const loadDashboardData = async ({ silent = false, source = "manual" } = {}) => {
+  if (isRefreshing) {
+    return;
+  }
+
+  isRefreshing = true;
+  setRefreshState(true, source === "manual" ? "Actualizando..." : "Sincronizando...");
+
   try {
+    const previousIds = new Set(state.messages.map((message) => message.id));
     const [messages, meta] = await Promise.all([
       inbox.getMessages(),
       inbox.getAdminMeta().catch(() => EMPTY_META)
     ]);
+    const incomingLeadIds = hasLoadedOnce
+      ? messages.filter((message) => !previousIds.has(message.id)).map((message) => message.id)
+      : [];
 
     state.messages = messages;
     state.meta = {
@@ -615,22 +713,43 @@ const loadDashboardData = async () => {
     populateStatusFilter();
     populateProjectFilter();
     syncSelectedLead();
+    setFreshLeadIds(incomingLeadIds);
     renderMessages();
     renderDrawer();
+
+    if (incomingLeadIds.length) {
+      const label = incomingLeadIds.length === 1 ? "Entró 1 lead nuevo." : `Entraron ${incomingLeadIds.length} leads nuevos.`;
+      setDashboardFeedback(label, "success");
+      showToast(label, "success");
+    } else if (!silent) {
+      setDashboardFeedback("Mensajes actualizados.", "success");
+      showToast("Mensajes actualizados.", "success");
+    }
+
+    hasLoadedOnce = true;
   } catch (error) {
     if (handleSessionError(error)) {
       return;
     }
 
-    setDashboardFeedback(error.message || "No pudimos cargar los leads.", "error");
-    renderEmptyState(error.message || "No pudimos cargar los leads.");
+    if (!silent || !hasLoadedOnce) {
+      setDashboardFeedback(error.message || "No pudimos cargar los leads.", "error");
+      showToast(error.message || "No pudimos cargar los leads.", "error");
+    }
+
+    if (!hasLoadedOnce) {
+      renderEmptyState(error.message || "No pudimos cargar los leads.");
+    }
+  } finally {
+    isRefreshing = false;
+    setRefreshState(false);
   }
 };
 
 const updateLeadStatus = async (messageId, status) => {
   try {
     const updatedLead = await inbox.setStatus(messageId, status);
-    await loadDashboardData();
+    await loadDashboardData({ silent: true, source: "action" });
 
     if (state.selectedLeadId === messageId) {
       state.selectedLead = updatedLead;
@@ -649,7 +768,7 @@ const updateLeadStatus = async (messageId, status) => {
 const saveReplyDraft = async (messageId, draft) => {
   try {
     const updatedLead = await inbox.setReplyDraft(messageId, draft);
-    await loadDashboardData();
+    await loadDashboardData({ silent: true, source: "action" });
 
     if (state.selectedLeadId === messageId) {
       state.selectedLead = updatedLead;
@@ -671,7 +790,7 @@ const saveLeadDetails = async (messageId, internalNotes, nextStep) => {
       internalNotes,
       nextStep
     });
-    await loadDashboardData();
+    await loadDashboardData({ silent: true, source: "action" });
 
     if (state.selectedLeadId === messageId) {
       state.selectedLead = updatedLead;
@@ -708,7 +827,7 @@ const removeLead = async (messageId) => {
       closeDrawer();
     }
 
-    await loadDashboardData();
+    await loadDashboardData({ silent: true, source: "action" });
     setDashboardFeedback("Lead eliminado del panel.", "success");
   } catch (error) {
     if (!handleSessionError(error)) {
@@ -872,7 +991,8 @@ if (loginForm && loginFeedback) {
 
       loginFeedback.textContent = "";
       setAuthenticatedState(true);
-      await loadDashboardData();
+      await loadDashboardData({ silent: true, source: "login" });
+      startAutoRefresh();
     } catch (error) {
       loginFeedback.textContent = error.message || "No pudimos iniciar sesión en este momento.";
     }
@@ -880,6 +1000,7 @@ if (loginForm && loginFeedback) {
 }
 
 logoutButton?.addEventListener("click", () => {
+  stopAutoRefresh();
   inbox.logoutAdmin();
   closeDrawer();
   setAuthenticatedState(false);
@@ -911,12 +1032,23 @@ dateToInput?.addEventListener("change", () => {
 });
 
 exportButton?.addEventListener("click", exportCsv);
+refreshButton?.addEventListener("click", () => {
+  loadDashboardData({ source: "manual" });
+});
 messagesList?.addEventListener("click", handleListClick);
 messagesList?.addEventListener("keydown", handleListKeydown);
 drawerContent?.addEventListener("click", handleDrawerClick);
 drawerContent?.addEventListener("submit", handleDrawerSubmit);
 drawerCloseButton?.addEventListener("click", closeDrawer);
 drawerBackdrop?.addEventListener("click", closeDrawer);
+
+document.addEventListener("visibilitychange", () => {
+  if (!inbox.isAdminAuthenticated() || document.hidden) {
+    return;
+  }
+
+  loadDashboardData({ silent: true, source: "resume" });
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && state.selectedLeadId) {
@@ -925,5 +1057,6 @@ document.addEventListener("keydown", (event) => {
 });
 
 if (inbox.isAdminAuthenticated()) {
-  loadDashboardData();
+  loadDashboardData({ silent: true, source: "startup" });
+  startAutoRefresh();
 }

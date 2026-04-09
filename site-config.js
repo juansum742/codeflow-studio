@@ -34,7 +34,7 @@ window.CodeFlowConfig = Object.freeze({
     },
     {
       slug: "barberodd",
-      name: "BarberOdd",
+      name: "Barberodd",
       badge: "Landing premium",
       description: "Landing comercial enfocada en mostrar marca, generar consultas y facilitar reservas directas por WhatsApp.",
       keywords: ["barberia", "barberodd"]

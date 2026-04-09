@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/codeflow-studio-mark.png">
-  <link rel="stylesheet" href="admin.css?v=20260409-3">
+  <link rel="stylesheet" href="admin.css?v=20260409-4">
 </head>
 <body class="admin-body">
   <div class="admin-grid" aria-hidden="true"></div>
@@ -54,6 +54,11 @@
 
         <div class="dashboard-actions">
           <span class="mode-pill" data-storage-mode></span>
+          <span class="new-badge is-empty" data-new-badge>Sin nuevos</span>
+          <button class="button button-secondary button-compact refresh-button" type="button" data-refresh-button>
+            <span class="refresh-icon" aria-hidden="true">&#8635;</span>
+            <span data-refresh-label>Recargar mensajes</span>
+          </button>
           <button class="button button-ghost button-compact" type="button" data-logout-button>Cerrar sesión</button>
         </div>
       </header>
@@ -122,8 +127,13 @@
         </div>
 
         <div class="toolbar-actions">
-          <p class="toolbar-summary" data-results-summary>0 leads</p>
-          <button class="button button-secondary button-compact" type="button" data-export-button>Exportar CSV</button>
+          <div class="toolbar-summary-group">
+            <p class="toolbar-summary" data-results-summary>0 leads</p>
+            <span class="toolbar-note">Actualización automática cada 8 segundos</span>
+          </div>
+          <div class="toolbar-button-group">
+            <button class="button button-secondary button-compact" type="button" data-export-button>Exportar CSV</button>
+          </div>
         </div>
       </section>
 
@@ -156,8 +166,10 @@
     <p>© 2026 <span>CodeFlow Studio</span> | Panel Privado</p>
   </footer>
 
-  <script src="site-config.js?v=20260409-3"></script>
+  <div class="admin-toast is-hidden" data-admin-toast role="status" aria-live="polite"></div>
+
+  <script src="site-config.js?v=20260409-4"></script>
   <script src="messages.js?v=20260409-3"></script>
-  <script src="admin.js?v=20260409-3" defer></script>
+  <script src="admin.js?v=20260409-4" defer></script>
 </body>
 </html>

@@ -31,6 +31,8 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 112px;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -44,6 +46,7 @@ body {
     radial-gradient(circle at 50% 100%, rgba(10, 21, 43, 0.9), transparent 32%),
     var(--bg);
   line-height: 1.6;
+  overflow-x: hidden;
   overflow-x: clip;
 }
 
@@ -62,6 +65,7 @@ input,
 textarea,
 select {
   font: inherit;
+  min-width: 0;
 }
 
 button {
@@ -138,6 +142,10 @@ code {
 .signal-section {
   position: relative;
   overflow: clip;
+}
+
+[id] {
+  scroll-margin-top: 112px;
 }
 
 .section {
@@ -325,6 +333,7 @@ code {
 .desktop-nav {
   gap: 24px;
   color: var(--muted-strong);
+  flex-wrap: wrap;
 }
 
 .desktop-nav a,
@@ -519,7 +528,7 @@ code {
 
 .hero-stage {
   position: relative;
-  min-height: 640px;
+  min-height: clamp(520px, 58vw, 640px);
 }
 
 .stage-frame {
@@ -1117,7 +1126,11 @@ code {
   }
 
   .hero-stage {
-    min-height: 600px;
+    min-height: 560px;
+  }
+
+  .stage-frame {
+    inset: 28px 0 22px;
   }
 
   .signal-grid {
@@ -1142,15 +1155,22 @@ code {
   .hero-proof {
     grid-template-columns: 1fr;
   }
+
+  .stage-floating {
+    position: static;
+    max-width: none;
+    margin-top: 14px;
+  }
 }
 
-@media (max-width: 900px) {
-  .site-header {
-    padding-top: 14px;
-  }
-
+@media (max-width: 1040px) {
   .nav-frame {
     padding: 14px 16px;
+    gap: 16px;
+  }
+
+  .brand {
+    width: min(214px, 54vw);
   }
 
   .desktop-nav,
@@ -1160,6 +1180,12 @@ code {
 
   .nav-toggle {
     display: inline-flex;
+  }
+}
+
+@media (max-width: 900px) {
+  .site-header {
+    padding-top: 14px;
   }
 
   .hero {
@@ -1171,11 +1197,11 @@ code {
   }
 
   .hero-stage {
-    min-height: 560px;
+    min-height: 520px;
   }
 
   .stage-frame {
-    inset: 34px 0 26px;
+    inset: 24px 0 18px;
   }
 
   .stage-grid,
@@ -1188,11 +1214,6 @@ code {
     grid-template-columns: 1fr;
   }
 
-  .stage-floating {
-    position: static;
-    max-width: none;
-    margin-top: 14px;
-  }
 }
 
 @media (max-width: 680px) {
@@ -1202,6 +1223,10 @@ code {
 
   .section {
     padding: 84px 0;
+  }
+
+  [id] {
+    scroll-margin-top: 100px;
   }
 
   .hero h1 {
@@ -1259,8 +1284,75 @@ code {
     padding: 18px;
   }
 
+  .hero {
+    padding: 26px 0 72px;
+  }
+
+  .hero-stage {
+    min-height: 456px;
+  }
+
+  .stage-panel-main,
+  .stage-panel-side {
+    padding: 20px;
+  }
+
+  .stage-panel-main {
+    min-height: auto;
+  }
+
+  .stage-chart {
+    height: 148px;
+    gap: 10px;
+  }
+
+  .project-slider {
+    aspect-ratio: 4 / 3;
+  }
+
+  .project-arrow {
+    width: 38px;
+    height: 38px;
+  }
+
+  .project-controls {
+    gap: 10px;
+  }
+
+  .project-dots {
+    justify-content: flex-start;
+  }
+
+  .message-form input,
+  .message-form textarea,
+  .message-form select {
+    font-size: 16px;
+  }
+
   .footer-inner {
     padding-top: 26px;
+  }
+
+  .site-footer {
+    padding-bottom: max(42px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .section {
+    padding: 72px 0;
+  }
+
+  .hero {
+    padding: 22px 0 64px;
+  }
+
+  .hero-stage {
+    min-height: 408px;
+  }
+
+  .stage-chart {
+    height: 136px;
   }
 }
 
