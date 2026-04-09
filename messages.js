@@ -2,10 +2,19 @@
   const config = window.CodeFlowConfig || {};
 
   const STORAGE_KEYS = {
-    messages: "codeflow-studio.messages.v3",
+    messages: "codeflow-studio.messages.v4",
     session: "codeflow-studio.admin-session.v2",
     token: "codeflow-studio.admin-token.v1"
   };
+
+  const LEAD_STATUSES = ["Nuevo", "Leído", "Respondido", "En negociación", "Cliente cerrado", "Archivado"];
+  const DEFAULT_STATUS = LEAD_STATUSES[0];
+  const READ_STATUS = LEAD_STATUSES[1];
+  const EMPTY_NOTIFICATION_CHANNELS = Object.freeze({
+    webhook: false,
+    whatsappWebhook: false,
+    email: false
+  });
 
   const apiBaseUrl = `${config.apiBaseUrl || ""}`.trim().replace(/\/$/, "");
   const requestedMode = config.storageMode || "auto";
@@ -19,11 +28,99 @@
     }
   };
 
-  const normalizeMessage = (message) => ({
-    ...message,
-    read: Boolean(message.read),
-    replyDraft: `${message.replyDraft || ""}`
+  const normalizeComparableText = (value) =>
+    `${value || ""}`
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .trim()
+      .toLowerCase();
+
+  const STATUS_ALIASES = LEAD_STATUSES.reduce((map, status) => {
+    map.set(normalizeComparableText(status), status);
+    return map;
+  }, new Map());
+
+  const normalizeStatus = (value, fallback = DEFAULT_STATUS) => STATUS_ALIASES.get(normalizeComparableText(value)) || fallback;
+  const statusImpliesRead = (status) => normalizeStatus(status, DEFAULT_STATUS) !== DEFAULT_STATUS;
+
+  const deriveStatusFromRead = (read, currentStatus = DEFAULT_STATUS) => {
+    if (!read) {
+      return DEFAULT_STATUS;
+    }
+
+    const normalizedCurrent = normalizeStatus(currentStatus, DEFAULT_STATUS);
+    return normalizedCurrent === DEFAULT_STATUS ? READ_STATUS : normalizedCurrent;
+  };
+
+  const normalizeHistoryEntry = (entry, fallbackStatus = DEFAULT_STATUS, fallbackDate = new Date().toISOString(), fallbackMessageId = "") => ({
+    id:
+      entry?.id ||
+      (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+        ? crypto.randomUUID()
+        : `hst-${Date.now()}-${Math.random().toString(16).slice(2)}`),
+    messageId: `${entry?.messageId || fallbackMessageId}`,
+    fromStatus: entry?.fromStatus ? normalizeStatus(entry.fromStatus, DEFAULT_STATUS) : null,
+    toStatus: normalizeStatus(entry?.toStatus, fallbackStatus),
+    note: `${entry?.note || ""}`,
+    changedAt: `${entry?.changedAt || fallbackDate}`,
+    changedBy: `${entry?.changedBy || "system"}`
   });
+
+  const createInitialHistory = (message) => [
+    normalizeHistoryEntry(
+      {
+        fromStatus: null,
+        toStatus: message.status,
+        note: "Lead registrado",
+        changedAt: message.createdAt,
+        changedBy: "system"
+      },
+      message.status,
+      message.createdAt,
+      message.id
+    )
+  ];
+
+  const normalizeProjectType = (value) => {
+    if (config.projectTypes?.includes(value)) {
+      return value;
+    }
+
+    return "Consulta general";
+  };
+
+  const normalizeMessage = (message) => {
+    const createdAt = `${message?.createdAt || message?.created_at || new Date().toISOString()}`;
+    const updatedAt = `${message?.updatedAt || message?.updated_at || createdAt}`;
+    const status = normalizeStatus(message?.status, message?.read ? READ_STATUS : DEFAULT_STATUS);
+
+    const normalized = {
+      id: `${message?.id || ""}`,
+      createdAt,
+      updatedAt,
+      name: `${message?.name || ""}`,
+      business: `${message?.business || ""}`,
+      whatsapp: `${message?.whatsapp || ""}`,
+      instagram: `${message?.instagram || ""}`,
+      projectType: normalizeProjectType(message?.projectType || message?.project_type),
+      message: `${message?.message || ""}`,
+      status,
+      read: statusImpliesRead(status),
+      replyDraft: `${message?.replyDraft || message?.reply_draft || ""}`
+    };
+
+    const historySource = Array.isArray(message?.statusHistory)
+      ? message.statusHistory
+      : Array.isArray(message?.history)
+        ? message.history
+        : [];
+
+    normalized.statusHistory = historySource.length
+      ? historySource.map((entry) => normalizeHistoryEntry(entry, normalized.status, normalized.updatedAt, normalized.id))
+      : createInitialHistory(normalized);
+
+    return normalized;
+  };
 
   const readMessages = () => {
     const parsed = safeParse(localStorage.getItem(STORAGE_KEYS.messages), []);
@@ -43,30 +140,27 @@
     return messages;
   };
 
-  const normalizeProjectType = (value) => {
-    if (config.projectTypes?.includes(value)) {
-      return value;
-    }
+  const createBrowserMessage = (payload) => {
+    const baseMessage = normalizeMessage({
+      id:
+        typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      name: payload.name,
+      business: payload.business,
+      whatsapp: payload.whatsapp,
+      instagram: payload.instagram || "",
+      projectType: normalizeProjectType(payload.projectType),
+      message: payload.message,
+      status: DEFAULT_STATUS,
+      replyDraft: ""
+    });
 
-    return "Consulta general";
+    baseMessage.statusHistory = createInitialHistory(baseMessage);
+    return baseMessage;
   };
-
-  const createBrowserMessage = (payload) => ({
-    id:
-      typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
-        ? crypto.randomUUID()
-        : `msg-${Date.now()}-${Math.random().toString(16).slice(2)}`,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    name: payload.name,
-    business: payload.business,
-    whatsapp: payload.whatsapp,
-    instagram: payload.instagram || "",
-    projectType: normalizeProjectType(payload.projectType),
-    message: payload.message,
-    read: false,
-    replyDraft: ""
-  });
 
   const getToken = () => sessionStorage.getItem(STORAGE_KEYS.token) || "";
   const setToken = (token) => sessionStorage.setItem(STORAGE_KEYS.token, token);
@@ -166,22 +260,106 @@
     return readMessages();
   };
 
-  const updateBrowserMessage = (messageId, updater) => {
+  const getMessageDetail = async (messageId) => {
+    if (storageMode === "api") {
+      const response = await apiRequest(`/api/admin/messages/${messageId}`, {
+        auth: true
+      });
+
+      const message = normalizeMessage({
+        ...response.message,
+        history: response.history || []
+      });
+
+      return {
+        message,
+        history: message.statusHistory
+      };
+    }
+
+    const message = readMessages().find((item) => item.id === messageId);
+
+    if (!message) {
+      throw new Error("No encontramos ese lead.");
+    }
+
+    return {
+      message,
+      history: message.statusHistory
+    };
+  };
+
+  const applyBrowserPatch = (messageId, patch = {}) => {
+    let updatedMessage = null;
+
     const updated = readMessages().map((message) => {
       if (message.id !== messageId) {
         return message;
       }
 
-      const nextMessage = typeof updater === "function" ? updater(message) : { ...message, ...updater };
+      const nextMessage = normalizeMessage(message);
+      const nextUpdatedAt = new Date().toISOString();
 
-      return {
-        ...nextMessage,
-        updatedAt: new Date().toISOString()
-      };
+      let nextStatus = nextMessage.status;
+
+      if (patch.status !== undefined) {
+        nextStatus = normalizeStatus(patch.status, nextMessage.status);
+      } else if (patch.read !== undefined) {
+        nextStatus = deriveStatusFromRead(Boolean(patch.read), nextMessage.status);
+      }
+
+      if (patch.replyDraft !== undefined) {
+        nextMessage.replyDraft = `${patch.replyDraft || ""}`;
+      }
+
+      if (nextStatus !== nextMessage.status) {
+        nextMessage.statusHistory = [
+          normalizeHistoryEntry(
+            {
+              messageId,
+              fromStatus: nextMessage.status,
+              toStatus: nextStatus,
+              note: `${patch.statusNote || ""}`.trim(),
+              changedAt: nextUpdatedAt,
+              changedBy: "admin"
+            },
+            nextStatus,
+            nextUpdatedAt,
+            messageId
+          ),
+          ...nextMessage.statusHistory
+        ];
+      }
+
+      nextMessage.status = nextStatus;
+      nextMessage.read = statusImpliesRead(nextStatus);
+      nextMessage.updatedAt = nextUpdatedAt;
+      updatedMessage = normalizeMessage(nextMessage);
+      return updatedMessage;
     });
 
     writeMessages(updated);
-    return updated.find((message) => message.id === messageId) || null;
+    return updatedMessage;
+  };
+
+  const setStatus = async (messageId, status, statusNote = "") => {
+    if (storageMode === "api") {
+      const response = await apiRequest(`/api/admin/messages/${messageId}`, {
+        method: "PATCH",
+        auth: true,
+        json: { status, statusNote }
+      });
+
+      return normalizeMessage({
+        ...response.message,
+        history: response.history || []
+      });
+    }
+
+    return applyBrowserPatch(messageId, {
+      status,
+      statusNote
+    });
   };
 
   const setRead = async (messageId, read) => {
@@ -192,13 +370,13 @@
         json: { read }
       });
 
-      return normalizeMessage(response.message);
+      return normalizeMessage({
+        ...response.message,
+        history: response.history || []
+      });
     }
 
-    return updateBrowserMessage(messageId, (message) => ({
-      ...message,
-      read
-    }));
+    return applyBrowserPatch(messageId, { read });
   };
 
   const setReplyDraft = async (messageId, replyDraft) => {
@@ -209,13 +387,15 @@
         json: { replyDraft }
       });
 
-      return normalizeMessage(response.message);
+      return normalizeMessage({
+        ...response.message,
+        history: response.history || []
+      });
     }
 
-    return updateBrowserMessage(messageId, (message) => ({
-      ...message,
+    return applyBrowserPatch(messageId, {
       replyDraft
-    }));
+    });
   };
 
   const deleteMessage = async (messageId) => {
@@ -232,13 +412,46 @@
     writeMessages(filtered);
   };
 
-  const getStats = (messages = []) => {
-    const unread = messages.filter((message) => !message.read).length;
+  const getAdminMeta = async () => {
+    if (storageMode === "api") {
+      const response = await apiRequest("/api/admin/meta", {
+        auth: true
+      });
+
+      return {
+        leadStatuses: Array.isArray(response.leadStatuses) && response.leadStatuses.length ? response.leadStatuses : LEAD_STATUSES,
+        notificationChannels: {
+          ...EMPTY_NOTIFICATION_CHANNELS,
+          ...(response.notificationChannels || {})
+        }
+      };
+    }
 
     return {
-      total: messages.length,
-      unread,
-      read: messages.length - unread
+      leadStatuses: LEAD_STATUSES,
+      notificationChannels: EMPTY_NOTIFICATION_CHANNELS
+    };
+  };
+
+  const getStats = (messages = []) => {
+    const normalized = messages.map(normalizeMessage);
+    const total = normalized.length;
+    const newLeads = normalized.filter((message) => message.status === DEFAULT_STATUS).length;
+    const negotiation = normalized.filter((message) => message.status === "En negociación").length;
+    const closed = normalized.filter((message) => message.status === "Cliente cerrado").length;
+    const responded = normalized.filter((message) => message.status === "Respondido").length;
+    const archived = normalized.filter((message) => message.status === "Archivado").length;
+
+    return {
+      total,
+      unread: newLeads,
+      read: total - newLeads,
+      newLeads,
+      negotiation,
+      closed,
+      responded,
+      archived,
+      closeRate: total ? Math.round((closed / total) * 100) : 0
     };
   };
 
@@ -323,13 +536,17 @@
     buildWhatsAppUrl,
     deleteMessage,
     formatDate,
+    getAdminMeta,
+    getMessageDetail,
     getMessages,
     getStats,
     isAdminAuthenticated,
+    leadStatuses: LEAD_STATUSES,
     loginAdmin,
     logoutAdmin,
     setRead,
     setReplyDraft,
+    setStatus,
     storageMode,
     submitMessage
   };

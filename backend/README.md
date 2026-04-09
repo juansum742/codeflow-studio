@@ -6,13 +6,14 @@ Backend serverless para el formulario y el panel privado usando Cloudflare Worke
 
 - Guardar mensajes del sitio en una base real.
 - Login admin con contraseña validada en el backend.
-- Listar, marcar como leído, borrar y guardar borradores de respuesta.
+- Listar leads, cambiar estados comerciales, ver historial, borrar y guardar borradores de respuesta.
 - Mantener el frontend en GitHub Pages y mover la lógica sensible fuera del navegador.
+- Preparar notificaciones automáticas por webhook, webhook de WhatsApp o email API.
 
 ## Pasos de despliegue
 
 1. Instala Wrangler y autentícate con Cloudflare.
-2. En `backend/wrangler.jsonc`, reemplaza `REPLACE_WITH_D1_DATABASE_ID` por el ID real de tu base D1.
+2. En `backend/wrangler.jsonc`, deja configurado el `database_id` real de tu base D1.
 3. Crea los secretos del Worker:
    - `wrangler secret put ADMIN_PASSWORD`
    - `wrangler secret put SESSION_SECRET`
@@ -46,3 +47,11 @@ Después del primer deploy, deja la URL del Worker en `site-config.js` para que 
 - Si `apiBaseUrl` queda vacío, el sitio vuelve al modo local del navegador.
 - La contraseña del admin no debe quedarse solo en `site-config.js`; el valor real para producción vive en el secret `ADMIN_PASSWORD`.
 - Si quieres mantener el mismo acceso en modo fallback y en modo API, usa el mismo valor en `site-config.js` y en el secret `ADMIN_PASSWORD`.
+- El CRM crea una columna `status` en `messages` y una tabla `message_status_history` para guardar el pipeline del lead.
+- Las notificaciones automáticas se activan configurando alguno de estos valores en el Worker:
+  - `NOTIFY_WEBHOOK_URL`
+  - `NOTIFY_WHATSAPP_WEBHOOK_URL`
+  - `NOTIFY_EMAIL_FROM`
+  - `NOTIFY_EMAIL_TO`
+  - secret `RESEND_API_KEY`
+- Si no configuras esos valores, el panel sigue funcionando normal y solo muestra los canales como listos para activar.

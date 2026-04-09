@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/codeflow-studio-mark.png">
-  <link rel="stylesheet" href="admin.css?v=20260408-2">
+  <link rel="stylesheet" href="admin.css?v=20260409-2">
 </head>
 <body class="admin-body">
   <div class="admin-grid" aria-hidden="true"></div>
@@ -22,21 +22,21 @@
       <div class="login-card">
         <img src="assets/codeflow-studio-logo.png" alt="CodeFlow Studio" width="280" height="115">
         <p class="eyebrow">Panel privado</p>
-        <h1>Inbox interno de mensajes</h1>
-        <p>Acceso simple con contraseña configurable para revisar consultas, marcarlas como leídas, eliminarlas y responder manualmente.</p>
+        <h1>CRM privado de leads</h1>
+        <p>Acceso al panel interno para gestionar consultas, clasificar oportunidades, seguir estados comerciales y responder clientes potenciales desde un solo lugar.</p>
 
         <form class="login-form" data-login-form novalidate>
           <label>
             Contraseña
             <input type="password" name="password" placeholder="Ingresa la contraseña" required>
           </label>
-          <button class="button button-primary" type="submit">Ingresar</button>
+          <button class="button button-primary" type="submit">Ingresar al panel</button>
           <p class="login-feedback" data-login-feedback role="status" aria-live="polite"></p>
         </form>
 
         <div class="login-note">
-          <strong>Modo híbrido</strong>
-          <span>El panel usa backend real cuando hay una API configurada y vuelve a modo navegador solo como fallback.</span>
+          <strong>Infraestructura activa</strong>
+          <span>El panel usa Cloudflare Workers + D1 para guardar leads en tiempo real y mantener seguimiento centralizado entre dispositivos.</span>
         </div>
       </div>
     </section>
@@ -47,7 +47,8 @@
           <img src="assets/codeflow-studio-logo.png" alt="CodeFlow Studio" width="220" height="91">
           <div>
             <p class="eyebrow">Admin privado</p>
-            <h1>Mensajes recibidos</h1>
+            <h1>Lead Desk CRM</h1>
+            <p>Seguimiento de mensajes, estados comerciales y operaciones del panel interno.</p>
           </div>
         </div>
 
@@ -57,47 +58,106 @@
         </div>
       </header>
 
-      <div class="dashboard-note">
-        <strong>Estado del inbox</strong>
-        <span>Con una API configurada, este panel centraliza mensajes entre dispositivos. Sin API, queda en modo local del navegador.</span>
-      </div>
+      <section class="note-grid">
+        <article class="dashboard-note">
+          <strong>Estado del inbox</strong>
+          <span>Los leads nuevos entran al CRM con persistencia real en D1. Desde aquí puedes filtrarlos, moverlos por estado y trabajarlos como mini pipeline comercial.</span>
+        </article>
+
+        <article class="dashboard-note dashboard-note-compact">
+          <strong>Canales automáticos</strong>
+          <div class="notification-pills" data-notification-pills></div>
+        </article>
+      </section>
 
       <section class="stats-grid" data-stats-grid>
         <article class="stat-card">
-          <span>Total</span>
+          <span>Mensajes nuevos</span>
+          <strong data-stat-new>0</strong>
+        </article>
+        <article class="stat-card">
+          <span>Total leads</span>
           <strong data-stat-total>0</strong>
         </article>
         <article class="stat-card">
-          <span>No leídos</span>
-          <strong data-stat-unread>0</strong>
+          <span>En negociación</span>
+          <strong data-stat-negotiation>0</strong>
         </article>
         <article class="stat-card">
-          <span>Leídos</span>
-          <strong data-stat-read>0</strong>
+          <span>Clientes cerrados</span>
+          <strong data-stat-closed>0</strong>
+        </article>
+        <article class="stat-card stat-card-accent">
+          <span>Tasa de cierre</span>
+          <strong data-stat-close-rate>0%</strong>
         </article>
       </section>
 
       <section class="toolbar">
-        <label class="search-field">
-          <span>Buscar</span>
-          <input type="search" data-search-input placeholder="Nombre, negocio o tipo de proyecto">
-        </label>
+        <div class="toolbar-grid">
+          <label class="search-field search-field-wide">
+            <span>Buscar lead</span>
+            <input type="search" data-search-input placeholder="Nombre, negocio, WhatsApp o tipo de proyecto">
+          </label>
 
-        <div class="filter-group" role="tablist" aria-label="Filtrar mensajes">
-          <button class="filter-button is-active" type="button" data-filter-button data-filter="all">Todos</button>
-          <button class="filter-button" type="button" data-filter-button data-filter="unread">No leídos</button>
-          <button class="filter-button" type="button" data-filter-button data-filter="read">Leídos</button>
+          <label class="field">
+            <span>Estado</span>
+            <select data-status-filter></select>
+          </label>
+
+          <label class="field">
+            <span>Tipo de proyecto</span>
+            <select data-project-filter></select>
+          </label>
+
+          <label class="field">
+            <span>Desde</span>
+            <input type="date" data-date-from>
+          </label>
+
+          <label class="field">
+            <span>Hasta</span>
+            <input type="date" data-date-to>
+          </label>
+        </div>
+
+        <div class="toolbar-actions">
+          <p class="toolbar-summary" data-results-summary>0 leads</p>
+          <button class="button button-secondary button-compact" type="button" data-export-button>Exportar CSV</button>
         </div>
       </section>
 
       <p class="dashboard-feedback" data-dashboard-feedback role="status" aria-live="polite"></p>
 
-      <section class="messages-list" data-messages-list></section>
+      <section class="leads-shell">
+        <div class="lead-table-head" aria-hidden="true">
+          <span>Lead</span>
+          <span>Proyecto</span>
+          <span>Contacto</span>
+          <span>Estado</span>
+          <span>Fecha</span>
+          <span>Acciones</span>
+        </div>
+
+        <section class="messages-list lead-list" data-messages-list></section>
+      </section>
     </section>
   </main>
 
-  <script src="site-config.js?v=20260408-3"></script>
-  <script src="messages.js?v=20260408-3"></script>
-  <script src="admin.js?v=20260408-3" defer></script>
+  <div class="drawer-backdrop is-hidden" data-drawer-backdrop></div>
+  <aside class="lead-drawer is-hidden" data-lead-drawer aria-hidden="true">
+    <div class="lead-drawer-shell">
+      <button class="drawer-close" type="button" aria-label="Cerrar detalle" data-drawer-close>&times;</button>
+      <div class="lead-drawer-content" data-drawer-content></div>
+    </div>
+  </aside>
+
+  <footer class="admin-footer">
+    <p>© 2026 <span>CodeFlow Studio</span> | Panel Privado</p>
+  </footer>
+
+  <script src="site-config.js?v=20260409-2"></script>
+  <script src="messages.js?v=20260409-2"></script>
+  <script src="admin.js?v=20260409-2" defer></script>
 </body>
 </html>

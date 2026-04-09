@@ -5,6 +5,9 @@ const jsonHeaders = {
 };
 
 const encoder = new TextEncoder();
+const LEAD_STATUSES = ["Nuevo", "Leído", "Respondido", "En negociación", "Cliente cerrado", "Archivado"];
+const DEFAULT_STATUS = LEAD_STATUSES[0];
+const READ_STATUS = LEAD_STATUSES[1];
 const FIELD_LIMITS = {
   name: 80,
   business: 120,
@@ -12,8 +15,14 @@ const FIELD_LIMITS = {
   instagram: 80,
   projectType: 80,
   message: 4000,
-  replyDraft: 4000
+  replyDraft: 4000,
+  statusNote: 240
 };
+
+const STATUS_ALIASES = LEAD_STATUSES.reduce((map, status) => {
+  map.set(normalizeComparableText(status), status);
+  return map;
+}, new Map());
 
 const createResponse = (request, env, payload, status = 200) => {
   const response = new Response(JSON.stringify(payload), {
@@ -56,18 +65,62 @@ const withCorsHeaders = (request, env, response) => {
   return response;
 };
 
-const normalizeMessage = (row) => ({
+function normalizeComparableText(value) {
+  return `${value || ""}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .toLowerCase();
+}
+
+function resolveStatusInput(value) {
+  return STATUS_ALIASES.get(normalizeComparableText(value)) || null;
+}
+
+function normalizeStatus(value, fallback = DEFAULT_STATUS) {
+  return resolveStatusInput(value) || fallback;
+}
+
+function statusImpliesRead(status) {
+  return normalizeStatus(status, DEFAULT_STATUS) !== DEFAULT_STATUS;
+}
+
+function deriveStatusFromRead(read, currentStatus = DEFAULT_STATUS) {
+  if (!read) {
+    return DEFAULT_STATUS;
+  }
+
+  const normalizedCurrent = normalizeStatus(currentStatus, DEFAULT_STATUS);
+  return normalizedCurrent === DEFAULT_STATUS ? READ_STATUS : normalizedCurrent;
+}
+
+const normalizeMessage = (row) => {
+  const status = normalizeStatus(row.status, row.is_read ? READ_STATUS : DEFAULT_STATUS);
+
+  return {
+    id: row.id,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    name: row.name,
+    business: row.business,
+    whatsapp: row.whatsapp,
+    instagram: row.instagram,
+    projectType: row.project_type,
+    message: row.message,
+    status,
+    read: statusImpliesRead(status),
+    replyDraft: row.reply_draft
+  };
+};
+
+const normalizeStatusEvent = (row) => ({
   id: row.id,
-  createdAt: row.created_at,
-  updatedAt: row.updated_at,
-  name: row.name,
-  business: row.business,
-  whatsapp: row.whatsapp,
-  instagram: row.instagram,
-  projectType: row.project_type,
-  message: row.message,
-  read: Boolean(row.is_read),
-  replyDraft: row.reply_draft
+  messageId: row.message_id,
+  fromStatus: row.from_status,
+  toStatus: row.to_status,
+  note: row.note,
+  changedAt: row.changed_at,
+  changedBy: row.changed_by
 });
 
 const safeCompare = (left, right) => {
@@ -167,6 +220,10 @@ const validateMessagePayload = (payload) => {
   }
 
   for (const [field, limit] of Object.entries(FIELD_LIMITS)) {
+    if (field === "replyDraft" || field === "statusNote") {
+      continue;
+    }
+
     if (`${payload?.[field] || ""}`.trim().length > limit) {
       return `El campo ${field} supera el máximo permitido de ${limit} caracteres.`;
     }
@@ -183,9 +240,17 @@ const validateReplyDraft = (value) => {
   return "";
 };
 
+const validateStatusNote = (value) => {
+  if (`${value || ""}`.trim().length > FIELD_LIMITS.statusNote) {
+    return `La nota de estado supera el máximo permitido de ${FIELD_LIMITS.statusNote} caracteres.`;
+  }
+
+  return "";
+};
+
 const getMessageById = async (env, messageId) => {
   const result = await env.DB.prepare(
-    `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, is_read, reply_draft
+    `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
      FROM messages
      WHERE id = ?`
   )
@@ -195,8 +260,131 @@ const getMessageById = async (env, messageId) => {
   return result ? normalizeMessage(result) : null;
 };
 
+const getMessageHistory = async (env, messageId) => {
+  const result = await env.DB.prepare(
+    `SELECT id, message_id, from_status, to_status, note, changed_at, changed_by
+     FROM message_status_history
+     WHERE message_id = ?
+     ORDER BY datetime(changed_at) DESC, id DESC`
+  )
+    .bind(messageId)
+    .all();
+
+  return (result.results || []).map(normalizeStatusEvent);
+};
+
+const insertStatusHistory = async (env, entry) => {
+  await env.DB.prepare(
+    `INSERT INTO message_status_history (
+      id, message_id, from_status, to_status, note, changed_at, changed_by
+    ) VALUES (?, ?, ?, ?, ?, ?, ?)`
+  )
+    .bind(
+      crypto.randomUUID(),
+      entry.messageId,
+      entry.fromStatus || null,
+      entry.toStatus,
+      entry.note || "",
+      entry.changedAt,
+      entry.changedBy || "admin"
+    )
+    .run();
+};
+
+const getNotificationChannels = (env) => ({
+  webhook: Boolean(`${env.NOTIFY_WEBHOOK_URL || ""}`.trim()),
+  whatsappWebhook: Boolean(`${env.NOTIFY_WHATSAPP_WEBHOOK_URL || ""}`.trim()),
+  email: Boolean(`${env.RESEND_API_KEY || ""}`.trim() && `${env.NOTIFY_EMAIL_TO || ""}`.trim() && `${env.NOTIFY_EMAIL_FROM || ""}`.trim())
+});
+
+const postJson = async (url, payload, headers = {}) => {
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json; charset=UTF-8",
+      ...headers
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Notification request failed with ${response.status}`);
+  }
+};
+
+const createNotificationPayload = (message) => ({
+  event: "lead.created",
+  brand: "CodeFlow Studio",
+  lead: message,
+  summary: {
+    title: `Nuevo lead de ${message.name}`,
+    subtitle: `${message.business} · ${message.projectType}`,
+    receivedAt: message.createdAt
+  }
+});
+
+const sendWebhookNotification = async (env, url, message, channel) => {
+  if (!`${url || ""}`.trim()) {
+    return;
+  }
+
+  await postJson(url, {
+    ...createNotificationPayload(message),
+    channel
+  });
+};
+
+const sendEmailNotification = async (env, message) => {
+  if (!getNotificationChannels(env).email) {
+    return;
+  }
+
+  const subject = `Nuevo lead | ${message.business} | ${message.projectType}`;
+  const lines = [
+    `Nombre: ${message.name}`,
+    `Negocio: ${message.business}`,
+    `WhatsApp: ${message.whatsapp}`,
+    `Instagram: ${message.instagram || "No especificado"}`,
+    `Tipo de proyecto: ${message.projectType}`,
+    `Estado inicial: ${message.status}`,
+    `Fecha: ${message.createdAt}`,
+    "",
+    "Mensaje:",
+    message.message
+  ];
+
+  await postJson(
+    "https://api.resend.com/emails",
+    {
+      from: env.NOTIFY_EMAIL_FROM,
+      to: [env.NOTIFY_EMAIL_TO],
+      subject,
+      text: lines.join("\n")
+    },
+    {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`
+    }
+  );
+};
+
+const notifyLead = async (env, message) => {
+  const tasks = [
+    sendWebhookNotification(env, env.NOTIFY_WEBHOOK_URL, message, "generic-webhook"),
+    sendWebhookNotification(env, env.NOTIFY_WHATSAPP_WEBHOOK_URL, message, "whatsapp-webhook"),
+    sendEmailNotification(env, message)
+  ];
+
+  const results = await Promise.allSettled(tasks);
+
+  results.forEach((result) => {
+    if (result.status === "rejected") {
+      console.error("Lead notification failed", result.reason);
+    }
+  });
+};
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, "") || "/";
 
@@ -207,7 +395,8 @@ export default {
     if (path === "/health" && request.method === "GET") {
       return createResponse(request, env, {
         ok: true,
-        mode: "cloudflare-worker"
+        mode: "cloudflare-worker",
+        notificationChannels: getNotificationChannels(env)
       });
     }
 
@@ -230,14 +419,15 @@ export default {
         instagram: `${payload.instagram || ""}`.trim(),
         projectType: `${payload.projectType}`.trim(),
         message: `${payload.message}`.trim(),
+        status: DEFAULT_STATUS,
         read: false,
         replyDraft: ""
       };
 
       await env.DB.prepare(
         `INSERT INTO messages (
-          id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, is_read, reply_draft
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
         .bind(
           message.id,
@@ -249,10 +439,24 @@ export default {
           message.instagram,
           message.projectType,
           message.message,
+          message.status,
           0,
           message.replyDraft
         )
         .run();
+
+      await insertStatusHistory(env, {
+        messageId: message.id,
+        fromStatus: null,
+        toStatus: message.status,
+        note: "Lead recibido desde la web",
+        changedAt: timestamp,
+        changedBy: "system"
+      });
+
+      if (ctx) {
+        ctx.waitUntil(notifyLead(env, message));
+      }
 
       return createResponse(request, env, { message }, 201);
     }
@@ -274,9 +478,16 @@ export default {
       return createResponse(request, env, { error: "La sesión no es válida." }, 401);
     }
 
+    if (path === "/api/admin/meta" && request.method === "GET") {
+      return createResponse(request, env, {
+        leadStatuses: LEAD_STATUSES,
+        notificationChannels: getNotificationChannels(env)
+      });
+    }
+
     if (path === "/api/admin/messages" && request.method === "GET") {
       const result = await env.DB.prepare(
-        `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, is_read, reply_draft
+        `SELECT id, created_at, updated_at, name, business, whatsapp, instagram, project_type, message, status, is_read, reply_draft
          FROM messages
          ORDER BY datetime(created_at) DESC`
       ).all();
@@ -288,6 +499,20 @@ export default {
 
     const messageMatch = path.match(/^\/api\/admin\/messages\/([^/]+)$/);
 
+    if (messageMatch && request.method === "GET") {
+      const messageId = messageMatch[1];
+      const message = await getMessageById(env, messageId);
+
+      if (!message) {
+        return createResponse(request, env, { error: "No encontramos ese mensaje." }, 404);
+      }
+
+      return createResponse(request, env, {
+        message,
+        history: await getMessageHistory(env, messageId)
+      });
+    }
+
     if (messageMatch && request.method === "PATCH") {
       const messageId = messageMatch[1];
       const existing = await getMessageById(env, messageId);
@@ -297,37 +522,74 @@ export default {
       }
 
       const payload = (await readJson(request)) || {};
-      const nextRead = payload.read === undefined ? existing.read : Boolean(payload.read);
+      const requestedStatus = payload.status === undefined ? undefined : resolveStatusInput(payload.status);
       const nextReplyDraft = payload.replyDraft === undefined ? existing.replyDraft : `${payload.replyDraft || ""}`;
+      const statusNote = `${payload.statusNote || ""}`.trim();
       const replyDraftError = validateReplyDraft(nextReplyDraft);
+      const statusNoteError = validateStatusNote(statusNote);
       const updatedAt = new Date().toISOString();
+
+      if (requestedStatus === null) {
+        return createResponse(request, env, { error: "El estado solicitado no es válido." }, 400);
+      }
 
       if (replyDraftError) {
         return createResponse(request, env, { error: replyDraftError }, 400);
       }
 
+      if (statusNoteError) {
+        return createResponse(request, env, { error: statusNoteError }, 400);
+      }
+
+      let nextStatus = existing.status;
+
+      if (requestedStatus !== undefined) {
+        nextStatus = requestedStatus;
+      } else if (payload.read !== undefined) {
+        nextStatus = deriveStatusFromRead(Boolean(payload.read), existing.status);
+      }
+
+      const nextRead = statusImpliesRead(nextStatus);
+
       await env.DB.prepare(
         `UPDATE messages
-         SET updated_at = ?, is_read = ?, reply_draft = ?
+         SET updated_at = ?, status = ?, is_read = ?, reply_draft = ?
          WHERE id = ?`
       )
-        .bind(updatedAt, nextRead ? 1 : 0, nextReplyDraft, messageId)
+        .bind(updatedAt, nextStatus, nextRead ? 1 : 0, nextReplyDraft, messageId)
         .run();
+
+      if (nextStatus !== existing.status) {
+        await insertStatusHistory(env, {
+          messageId,
+          fromStatus: existing.status,
+          toStatus: nextStatus,
+          note: statusNote,
+          changedAt: updatedAt,
+          changedBy: "admin"
+        });
+      }
 
       return createResponse(request, env, {
         message: {
           ...existing,
           updatedAt,
+          status: nextStatus,
           read: nextRead,
           replyDraft: nextReplyDraft
-        }
+        },
+        history: await getMessageHistory(env, messageId)
       });
     }
 
     if (messageMatch && request.method === "DELETE") {
       const messageId = messageMatch[1];
 
-      await env.DB.prepare("DELETE FROM messages WHERE id = ?").bind(messageId).run();
+      await env.DB.batch([
+        env.DB.prepare("DELETE FROM message_status_history WHERE message_id = ?").bind(messageId),
+        env.DB.prepare("DELETE FROM messages WHERE id = ?").bind(messageId)
+      ]);
+
       return emptyResponse(request, env);
     }
 
