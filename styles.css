@@ -1514,7 +1514,7 @@ code {
   }
 
   .project-slider {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     overflow: hidden;
   }
 
@@ -1532,13 +1532,13 @@ code {
 
   .project-slider.has-controls .project-slide::after {
     display: block;
-    height: 62px;
+    height: 54px;
     background: linear-gradient(180deg, transparent, rgba(4, 8, 15, 0.86));
   }
 
   .project-viewport {
-    inset: 10px;
-    border-radius: 18px;
+    inset: 8px;
+    border-radius: 16px;
     border: 1px solid rgba(103, 176, 255, 0.14);
     background:
       radial-gradient(circle at top, rgba(52, 217, 255, 0.12), transparent 60%),
@@ -1548,14 +1548,29 @@ code {
       inset 0 0 0 1px rgba(14, 26, 46, 0.36);
   }
 
+  .project-viewport::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 28px;
+    border-bottom: 1px solid rgba(103, 176, 255, 0.12);
+    background:
+      radial-gradient(circle at 18px 14px, rgba(255, 255, 255, 0.78) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 31px 14px, rgba(52, 217, 255, 0.82) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 44px 14px, rgba(31, 111, 255, 0.82) 0 2.5px, transparent 3px),
+      linear-gradient(180deg, rgba(16, 28, 47, 0.96), rgba(10, 18, 31, 0.88));
+    pointer-events: none;
+    z-index: 1;
+  }
+
   .project-slider.has-controls .project-viewport {
-    inset: 10px 10px 48px;
+    inset: 8px 8px 42px;
   }
 
   .project-slide img {
     object-fit: contain;
     object-position: center top;
-    padding: 8px 8px 0;
+    padding: 34px 6px 0;
     background: transparent;
   }
 
@@ -1565,10 +1580,10 @@ code {
 
   .project-controls {
     position: absolute;
-    inset: auto 10px 10px;
+    inset: auto 8px 8px;
     padding: 0;
     justify-content: space-between;
-    gap: 10px;
+    gap: 8px;
     pointer-events: none;
   }
 
@@ -1580,13 +1595,14 @@ code {
 
   .project-dots {
     flex: 1;
+    gap: 6px;
     justify-content: flex-end;
     pointer-events: auto;
   }
 
   .project-arrow {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
   }
 }
 
