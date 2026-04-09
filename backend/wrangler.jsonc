@@ -13,7 +13,7 @@
     {
       "binding": "DB",
       "database_name": "codeflow-studio-messages",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID",
+      "database_id": "54036749-46fd-45de-8ce1-3ccca1677871",
       "migrations_dir": "migrations"
     }
   ]
