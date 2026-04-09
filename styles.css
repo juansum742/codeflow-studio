@@ -1563,14 +1563,15 @@ code {
     z-index: 1;
   }
 
-  .project-slider.has-controls .project-viewport {
-    inset: 8px 8px 42px;
-  }
-
   .project-slide img {
-    object-fit: contain;
+    position: absolute;
+    inset: 28px 0 0;
+    display: block;
+    width: 100%;
+    height: calc(100% - 28px);
+    object-fit: cover;
     object-position: center top;
-    padding: 34px 6px 0;
+    padding: 0;
     background: transparent;
   }
 
