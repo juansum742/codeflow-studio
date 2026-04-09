@@ -1446,6 +1446,130 @@ code {
   }
 }
 
+@media (max-width: 768px) {
+  .hero-stage {
+    display: grid;
+    gap: 16px;
+    min-height: auto;
+    align-items: start;
+  }
+
+  .stage-frame,
+  .stage-floating {
+    width: 100%;
+    margin: 0;
+  }
+
+  .stage-frame {
+    position: relative;
+    inset: auto;
+    order: 3;
+    clip-path: none;
+    overflow: hidden;
+  }
+
+  .stage-window {
+    clip-path: none;
+    border-radius: calc(var(--radius-xl) - 2px);
+  }
+
+  .stage-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .stage-panel-main,
+  .stage-panel-side,
+  .stage-panel-tile {
+    min-height: auto;
+  }
+
+  .stage-chart {
+    height: 132px;
+  }
+
+  .stage-floating {
+    position: relative;
+    inset: auto;
+    max-width: none;
+    z-index: 1;
+  }
+
+  .stage-floating-top {
+    order: 1;
+  }
+
+  .stage-floating-bottom {
+    order: 2;
+  }
+
+  .project-media {
+    overflow: hidden;
+  }
+
+  .project-slider {
+    aspect-ratio: auto;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pinch-zoom;
+    scrollbar-width: none;
+  }
+
+  .project-slider::-webkit-scrollbar {
+    display: none;
+  }
+
+  .project-track {
+    width: max-content;
+    min-width: 100%;
+    height: auto;
+    transform: none !important;
+    will-change: auto;
+  }
+
+  .project-slide {
+    flex: 0 0 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    aspect-ratio: 16 / 11;
+  }
+
+  .project-slide::after {
+    display: none;
+  }
+
+  .project-slide img {
+    object-fit: contain;
+    object-position: top center;
+    background: linear-gradient(180deg, rgba(9, 16, 28, 0.88), rgba(6, 10, 18, 0.98));
+  }
+
+  .project-card:hover .project-slide.is-active img {
+    transform: none;
+  }
+
+  .project-controls {
+    position: static;
+    inset: auto;
+    padding: 12px 14px 14px;
+    justify-content: center;
+    gap: 12px;
+    pointer-events: auto;
+  }
+
+  .project-nav {
+    display: none;
+  }
+
+  .project-dots {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 @media (max-width: 900px) and (orientation: landscape) {
   .section {
     padding: 72px 0;

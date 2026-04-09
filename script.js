@@ -24,6 +24,7 @@ const twitterDescription = document.querySelector('meta[name="twitter:descriptio
 
 const portfolioState = new Map();
 const LANGUAGE_STORAGE_KEY = "codeflow-studio.language";
+const mobilePortfolioMedia = window.matchMedia("(max-width: 768px)");
 const SUPPORTED_LANGUAGES = Array.isArray(config.supportedLanguages) && config.supportedLanguages.length
   ? config.supportedLanguages
   : ["es", "en", "pt"];
@@ -547,6 +548,22 @@ const buildPortfolioProjects = () => {
     .filter((project) => project.images.length > 0);
 };
 
+const isMobilePortfolioViewport = () => mobilePortfolioMedia.matches;
+
+const updateSliderUi = (slider, activeIndex) => {
+  const slides = [...slider.querySelectorAll(".project-slide")];
+  const dots = [...slider.querySelectorAll(".project-dot")];
+
+  slides.forEach((slide, index) => {
+    slide.classList.toggle("is-active", index === activeIndex);
+  });
+
+  dots.forEach((dot, index) => {
+    dot.classList.toggle("is-active", index === activeIndex);
+    dot.setAttribute("aria-current", index === activeIndex ? "true" : "false");
+  });
+};
+
 const setSliderIndex = (sliderId, nextIndex) => {
   const slider = document.querySelector(`[data-portfolio-slider="${sliderId}"]`);
 
@@ -555,23 +572,74 @@ const setSliderIndex = (sliderId, nextIndex) => {
   }
 
   const slides = [...slider.querySelectorAll(".project-slide")];
-  const dots = [...slider.querySelectorAll(".project-dot")];
   const safeIndex = ((nextIndex % slides.length) + slides.length) % slides.length;
   const track = slider.querySelector(".project-track");
 
   portfolioState.set(sliderId, safeIndex);
 
-  if (track) {
+  if (track && !isMobilePortfolioViewport()) {
     track.style.transform = `translateX(-${safeIndex * 100}%)`;
   }
 
-  slides.forEach((slide, index) => {
-    slide.classList.toggle("is-active", index === safeIndex);
-  });
+  if (track && isMobilePortfolioViewport()) {
+    track.style.transform = "";
+  }
 
-  dots.forEach((dot, index) => {
-    dot.classList.toggle("is-active", index === safeIndex);
-    dot.setAttribute("aria-current", index === safeIndex ? "true" : "false");
+  if (isMobilePortfolioViewport()) {
+    slider.scrollTo({
+      left: safeIndex * slider.clientWidth,
+      behavior: "smooth"
+    });
+  }
+
+  updateSliderUi(slider, safeIndex);
+};
+
+const handlePortfolioSliderScroll = (event) => {
+  if (!isMobilePortfolioViewport()) {
+    return;
+  }
+
+  const slider = event.currentTarget;
+  const slides = [...slider.querySelectorAll(".project-slide")];
+
+  if (!slides.length) {
+    return;
+  }
+
+  const slideWidth = slider.clientWidth || slides[0].clientWidth || 1;
+  const nextIndex = Math.max(0, Math.min(slides.length - 1, Math.round(slider.scrollLeft / slideWidth)));
+
+  portfolioState.set(slider.dataset.portfolioSlider, nextIndex);
+  updateSliderUi(slider, nextIndex);
+};
+
+const bindPortfolioSwipe = () => {
+  if (!portfolioGrid) {
+    return;
+  }
+
+  const sliders = [...portfolioGrid.querySelectorAll("[data-portfolio-slider]")];
+
+  sliders.forEach((slider) => {
+    slider.removeEventListener("scroll", handlePortfolioSliderScroll);
+    slider.addEventListener("scroll", handlePortfolioSliderScroll, { passive: true });
+
+    const sliderId = slider.dataset.portfolioSlider;
+    const currentIndex = portfolioState.get(sliderId) ?? 0;
+
+    if (isMobilePortfolioViewport()) {
+      slider.scrollLeft = currentIndex * slider.clientWidth;
+      updateSliderUi(slider, currentIndex);
+    } else {
+      const track = slider.querySelector(".project-track");
+
+      if (track) {
+        track.style.transform = `translateX(-${currentIndex * 100}%)`;
+      }
+
+      updateSliderUi(slider, currentIndex);
+    }
   });
 };
 
@@ -657,6 +725,8 @@ const renderPortfolio = () => {
       setSliderIndex(project.slug, 0);
     }
   });
+
+  bindPortfolioSwipe();
 };
 
 const updateMeta = () => {
@@ -846,9 +916,27 @@ languageSelect?.addEventListener("change", () => {
   setLanguage(languageSelect.value);
 });
 
+const syncPortfolioViewportMode = () => {
+  if (!portfolioGrid) {
+    return;
+  }
+
+  [...portfolioGrid.querySelectorAll("[data-portfolio-slider]")].forEach((slider) => {
+    const sliderId = slider.dataset.portfolioSlider;
+    setSliderIndex(sliderId, portfolioState.get(sliderId) ?? 0);
+  });
+};
+
+if (typeof mobilePortfolioMedia.addEventListener === "function") {
+  mobilePortfolioMedia.addEventListener("change", syncPortfolioViewportMode);
+} else if (typeof mobilePortfolioMedia.addListener === "function") {
+  mobilePortfolioMedia.addListener(syncPortfolioViewportMode);
+}
+
 setHeaderState();
 setLanguage(currentLanguage);
 setupRevealObserver();
 handleContactSubmit();
 
 window.addEventListener("scroll", setHeaderState, { passive: true });
+window.addEventListener("resize", syncPortfolioViewportMode, { passive: true });
