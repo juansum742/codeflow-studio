@@ -1514,7 +1514,7 @@ code {
   }
 
   .project-slider {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 7 / 5;
     overflow: hidden;
   }
 
@@ -1532,12 +1532,12 @@ code {
 
   .project-slider.has-controls .project-slide::after {
     display: block;
-    height: 54px;
+    height: 46px;
     background: linear-gradient(180deg, transparent, rgba(4, 8, 15, 0.86));
   }
 
   .project-viewport {
-    inset: 8px;
+    inset: 6px;
     border-radius: 16px;
     border: 1px solid rgba(103, 176, 255, 0.14);
     background:
@@ -1552,12 +1552,12 @@ code {
     content: "";
     position: absolute;
     inset: 0 0 auto;
-    height: 28px;
+    height: 22px;
     border-bottom: 1px solid rgba(103, 176, 255, 0.12);
     background:
-      radial-gradient(circle at 18px 14px, rgba(255, 255, 255, 0.78) 0 2.5px, transparent 3px),
-      radial-gradient(circle at 31px 14px, rgba(52, 217, 255, 0.82) 0 2.5px, transparent 3px),
-      radial-gradient(circle at 44px 14px, rgba(31, 111, 255, 0.82) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 16px 11px, rgba(255, 255, 255, 0.78) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 28px 11px, rgba(52, 217, 255, 0.82) 0 2.5px, transparent 3px),
+      radial-gradient(circle at 40px 11px, rgba(31, 111, 255, 0.82) 0 2.5px, transparent 3px),
       linear-gradient(180deg, rgba(16, 28, 47, 0.96), rgba(10, 18, 31, 0.88));
     pointer-events: none;
     z-index: 1;
@@ -1565,10 +1565,10 @@ code {
 
   .project-slide img {
     position: absolute;
-    inset: 28px 0 0;
+    inset: 22px 0 0;
     display: block;
     width: 100%;
-    height: calc(100% - 28px);
+    height: calc(100% - 22px);
     object-fit: cover;
     object-position: center top;
     padding: 0;
@@ -1581,7 +1581,7 @@ code {
 
   .project-controls {
     position: absolute;
-    inset: auto 8px 8px;
+    inset: auto 6px 6px;
     padding: 0;
     justify-content: space-between;
     gap: 8px;
