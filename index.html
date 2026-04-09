@@ -3,40 +3,40 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeFlow Studio | Web premium, sistemas y software a medida</title>
-  <meta name="description" content="CodeFlow Studio diseña webs premium, sistemas de reservas, paneles administrativos y software a medida para negocios que quieren verse mejor, vender más y operar con orden.">
+  <title>CodeFlow Studio | Landing pages, sistemas y software premium</title>
+  <meta name="description" content="CodeFlow Studio crea landing pages, sistemas premium y software a medida para negocios que quieren vender mejor, automatizar procesos y proyectar una imagen profesional.">
   <meta name="keywords" content="CodeFlow Studio, desarrollo web premium, software a medida, landing pages, SaaS, panel administrativo, automatización">
   <meta name="theme-color" content="#05070d">
   <meta name="robots" content="index,follow">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="CodeFlow Studio | Escalamos tu negocio con tecnología">
-  <meta property="og:description" content="Web premium, sistemas de reservas, paneles administrativos, automatización y plataformas escalables con identidad de alto nivel.">
+  <meta property="og:title" content="CodeFlow Studio | Landing pages, sistemas premium y software a medida">
+  <meta property="og:description" content="Landing Page desde USD 300, sistemas premium desde USD 600 y soluciones SaaS escalables con cotización personalizada.">
   <meta property="og:image" content="assets/codeflow-studio-logo.png">
   <meta property="og:locale" content="es_LA">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CodeFlow Studio | Web premium, sistemas y software a medida">
-  <meta name="twitter:description" content="Diseñamos experiencias digitales premium para negocios que quieren proyectarse con nivel y automatizar su operación.">
+  <meta name="twitter:title" content="CodeFlow Studio | Landing pages, sistemas y software premium">
+  <meta name="twitter:description" content="Landing Page USD 300, sistemas premium desde USD 600 y soluciones personalizadas para negocios que quieren crecer.">
   <meta name="twitter:image" content="assets/codeflow-studio-logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/codeflow-studio-mark.png">
   <link rel="apple-touch-icon" href="assets/codeflow-studio-mark.png">
-  <link rel="stylesheet" href="styles.css?v=20260409-4">
+  <link rel="stylesheet" href="styles.css?v=20260409-5">
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "ProfessionalService",
       "name": "CodeFlow Studio",
-      "description": "Webs premium, sistemas de reservas, paneles administrativos, automatización y software a medida.",
+      "description": "Landing pages, sistemas premium, automatización y software a medida para negocios que quieren vender mejor.",
       "image": "assets/codeflow-studio-logo.png",
       "areaServed": "Latinoamérica",
       "serviceType": [
-        "Landing Pages Premium",
+        "Landing Page",
+        "Sistema Premium",
         "Sistemas de Reservas",
         "Paneles Administrativos",
         "Automatización",
-        "Backend y APIs",
         "Plataformas SaaS",
         "Soluciones digitales a medida"
       ]
@@ -55,15 +55,23 @@
       </a>
 
       <nav class="desktop-nav" aria-label="Principal">
-        <a href="#inicio">Inicio</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#proyectos">Proyectos</a>
-        <a href="#precios">Precios</a>
-        <a href="#contacto">Contacto</a>
+        <a href="#inicio" data-i18n="nav.home">Inicio</a>
+        <a href="#servicios" data-i18n="nav.services">Servicios</a>
+        <a href="#proyectos" data-i18n="nav.projects">Proyectos</a>
+        <a href="#precios" data-i18n="nav.pricing">Precios</a>
+        <a href="#contacto" data-i18n="nav.contact">Contacto</a>
       </nav>
 
       <div class="nav-actions">
-        <a class="button button-primary button-compact" href="#contacto">Solicitar presupuesto</a>
+        <label class="language-switcher" aria-label="Selector de idioma">
+          <span class="sr-only" data-i18n="nav.language">Idioma</span>
+          <select data-language-select>
+            <option value="es">ES</option>
+            <option value="en">EN</option>
+            <option value="pt">PT</option>
+          </select>
+        </label>
+        <a class="button button-primary button-compact" href="#contacto" data-i18n="nav.cta">Solicitar presupuesto</a>
         <button class="nav-toggle" type="button" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
           <span></span>
           <span></span>
@@ -73,12 +81,12 @@
 
     <div class="mobile-menu" id="mobile-menu">
       <div class="mobile-menu-panel">
-        <a href="#inicio">Inicio</a>
-        <a href="#servicios">Servicios</a>
-        <a href="#proyectos">Proyectos</a>
-        <a href="#precios">Precios</a>
-        <a href="#contacto">Contacto</a>
-        <a class="button button-primary" href="#contacto">Solicitar presupuesto</a>
+        <a href="#inicio" data-i18n="nav.home">Inicio</a>
+        <a href="#servicios" data-i18n="nav.services">Servicios</a>
+        <a href="#proyectos" data-i18n="nav.projects">Proyectos</a>
+        <a href="#precios" data-i18n="nav.pricing">Precios</a>
+        <a href="#contacto" data-i18n="nav.contact">Contacto</a>
+        <a class="button button-primary" href="#contacto" data-i18n="nav.cta">Solicitar presupuesto</a>
       </div>
     </div>
   </header>
@@ -89,41 +97,39 @@
         <div class="hero-copy reveal">
           <div class="hero-brand">
             <span class="hero-brand-tag">CodeFlow Studio</span>
-            <span>Desarrollo premium para negocios que quieren verse mejor, vender m&aacute;s y operar con m&aacute;s orden.</span>
+            <span data-i18n="hero.brandLine">Desarrollo premium para negocios que quieren verse mejor, vender m&aacute;s y operar con m&aacute;s orden.</span>
           </div>
 
-          <p class="eyebrow">Webs premium + sistemas que convierten</p>
-          <h1>Escalamos tu negocio con tecnolog&iacute;a que vende, automatiza y ordena</h1>
-          <p class="hero-lead">Creamos landing pages premium, sistemas de reservas, paneles administrativos, automatizaciones y software a medida para que consigas m&aacute;s clientes, aumentes reservas y proyectes una imagen mucho m&aacute;s profesional.</p>
+          <p class="eyebrow" data-i18n="hero.eyebrow">Webs premium + sistemas que convierten</p>
+          <h1 data-i18n="hero.title">Escalamos tu negocio con tecnolog&iacute;a que vende, automatiza y ordena</h1>
+          <p class="hero-lead" data-i18n="hero.lead">Creamos landing pages, sistemas premium, automatizaciones y software a medida para que consigas m&aacute;s clientes, aumentes reservas y proyectes una imagen mucho m&aacute;s profesional.</p>
 
           <div class="hero-actions">
-            <a class="button button-primary" href="#contacto">Solicitar presupuesto</a>
-            <a class="button button-secondary" href="#contacto">Ped&iacute; una demo</a>
-            <a class="button button-ghost" data-whatsapp-link href="https://wa.me/59892966252?text=Hola%20CodeFlow%20Studio" target="_blank" rel="noreferrer">WhatsApp</a>
-            <a class="button button-ghost" data-instagram-link href="https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr" target="_blank" rel="noreferrer">Instagram</a>
+            <a class="button button-primary" href="#contacto" data-i18n="hero.primaryCta">Solicitar presupuesto</a>
+            <a class="button button-secondary" href="#precios" data-i18n="hero.secondaryCta">Ver precios</a>
           </div>
 
           <div class="hero-clients">
-            <span>Gimnasios</span>
-            <span>P&aacute;del</span>
-            <span>Barber&iacute;as</span>
-            <span>Comercios</span>
-            <span>Empresas</span>
-            <span>Sistemas a medida</span>
+            <span data-i18n="hero.sectors.gyms">Gimnasios</span>
+            <span data-i18n="hero.sectors.padel">P&aacute;del</span>
+            <span data-i18n="hero.sectors.barbers">Barber&iacute;as</span>
+            <span data-i18n="hero.sectors.retail">Comercios</span>
+            <span data-i18n="hero.sectors.businesses">Empresas</span>
+            <span data-i18n="hero.sectors.custom">Sistemas a medida</span>
           </div>
 
           <div class="hero-proof">
             <article class="glass-card proof-card">
-              <strong>Mejor imagen</strong>
-              <p>Tu negocio se ve m&aacute;s profesional, transmite confianza y destaca frente a la competencia.</p>
+              <strong data-i18n="hero.proof.imageTitle">Imagen profesional</strong>
+              <p data-i18n="hero.proof.imageText">Tu negocio se ve m&aacute;s profesional, transmite confianza y destaca frente a la competencia.</p>
             </article>
             <article class="glass-card proof-card">
-              <strong>M&aacute;s reservas y consultas</strong>
-              <p>Dise&ntilde;amos recorridos claros para convertir visitas en conversaciones reales y oportunidades.</p>
+              <strong data-i18n="hero.proof.automationTitle">Automatizaci&oacute;n &uacute;til</strong>
+              <p data-i18n="hero.proof.automationText">Dise&ntilde;amos recorridos claros y procesos digitales para convertir visitas en consultas reales y ahorrar tiempo.</p>
             </article>
             <article class="glass-card proof-card">
-              <strong>Operaci&oacute;n ordenada</strong>
-              <p>Automatizamos tareas y centralizamos procesos para que ganes tiempo y controles mejor tu negocio.</p>
+              <strong data-i18n="hero.proof.scaleTitle">Base escalable</strong>
+              <p data-i18n="hero.proof.scaleText">Empieza con una Landing Page o con un sistema premium y escala seg&uacute;n la complejidad de tu negocio.</p>
             </article>
           </div>
         </div>
@@ -199,10 +205,10 @@
     <section class="signal-section">
       <div class="container">
         <div class="signal-grid reveal">
-          <article class="glass-card signal-card"><strong>Landing pages premium</strong><span>Para vender con presencia y jerarquía.</span></article>
-          <article class="glass-card signal-card"><strong>Sistemas de reservas</strong><span>Turnos, membresías y operación diaria centralizada.</span></article>
-          <article class="glass-card signal-card"><strong>Paneles administrativos</strong><span>Datos, control interno y automatización real.</span></article>
-          <article class="glass-card signal-card"><strong>Plataformas SaaS</strong><span>Estructuras escalables para productos más grandes.</span></article>
+          <article class="glass-card signal-card"><strong data-i18n="signals.landingTitle">Landing Page</strong><span data-i18n="signals.landingText">USD 300 para lanzar una presencia profesional y orientada a conversi&oacute;n.</span></article>
+          <article class="glass-card signal-card"><strong data-i18n="signals.premiumTitle">Sistemas premium</strong><span data-i18n="signals.premiumText">Desde USD 600, ajustados a los objetivos y procesos de tu negocio.</span></article>
+          <article class="glass-card signal-card"><strong data-i18n="signals.automationTitle">Automatizaci&oacute;n</strong><span data-i18n="signals.automationText">Menos tareas manuales, m&aacute;s orden comercial y operativo.</span></article>
+          <article class="glass-card signal-card"><strong data-i18n="signals.saasTitle">SaaS y sistemas complejos</strong><span data-i18n="signals.saasText">Cotizaci&oacute;n personalizada para soluciones con m&aacute;s alcance.</span></article>
         </div>
       </div>
     </section>
@@ -210,41 +216,41 @@
     <section class="section section-cut" id="servicios">
       <div class="container">
         <div class="section-head reveal">
-          <p class="eyebrow">Servicios</p>
-          <h2>Soluciones digitales dise&ntilde;adas para vender mejor, automatizar procesos y hacer crecer tu negocio</h2>
-          <p>No hacemos p&aacute;ginas gen&eacute;ricas. Dise&ntilde;amos experiencias premium y sistemas funcionales para que tu negocio proyecte nivel, mejore su operaci&oacute;n y convierta m&aacute;s visitas en clientes.</p>
+          <p class="eyebrow" data-i18n="services.eyebrow">Servicios</p>
+          <h2 data-i18n="services.title">Soluciones digitales dise&ntilde;adas para vender mejor, automatizar procesos y hacer crecer tu negocio</h2>
+          <p data-i18n="services.body">No hacemos p&aacute;ginas gen&eacute;ricas. Dise&ntilde;amos experiencias premium y sistemas funcionales para que tu negocio proyecte nivel, mejore su operaci&oacute;n y convierta m&aacute;s visitas en clientes.</p>
         </div>
 
         <div class="services-bento">
           <article class="glass-card service-card service-card-wide reveal">
             <span class="service-index">01</span>
-            <h3>Landing Pages Premium</h3>
-            <p>Diseño distintivo, narrativa clara, jerarquía visual fuerte y foco real en conversión.</p>
+            <h3 data-i18n="services.cards.landing.title">Landing Page</h3>
+            <p data-i18n="services.cards.landing.body">Dise&ntilde;o distintivo, narrativa clara, jerarqu&iacute;a visual fuerte y foco real en conversi&oacute;n. Precio fijo: USD 300.</p>
           </article>
           <article class="glass-card service-card reveal">
             <span class="service-index">02</span>
-            <h3>Sistemas de Reservas y Membresías</h3>
-            <p>Turnos, agendas, cupos, planes y experiencia simple para clientes y administradores.</p>
+            <h3 data-i18n="services.cards.booking.title">Sistemas de Reservas</h3>
+            <p data-i18n="services.cards.booking.body">Turnos, agendas, cupos y operaci&oacute;n ordenada. Sistema premium desde USD 600.</p>
           </article>
           <article class="glass-card service-card reveal">
             <span class="service-index">03</span>
-            <h3>Paneles Administrativos</h3>
-            <p>Información ordenada, acciones rápidas y control de la operación sin ruido visual.</p>
+            <h3 data-i18n="services.cards.admin.title">Paneles Administrativos</h3>
+            <p data-i18n="services.cards.admin.body">Informaci&oacute;n ordenada, acciones r&aacute;pidas y control de la operaci&oacute;n. Desde USD 600 seg&uacute;n alcance.</p>
           </article>
           <article class="glass-card service-card reveal">
             <span class="service-index">04</span>
-            <h3>Automatización de Procesos</h3>
-            <p>Menos tareas manuales, más consistencia y flujos internos que realmente ahorran tiempo.</p>
+            <h3 data-i18n="services.cards.automation.title">Automatizaci&oacute;n de Procesos</h3>
+            <p data-i18n="services.cards.automation.body">Menos tareas manuales, m&aacute;s consistencia y flujos internos que realmente ahorran tiempo. Desde USD 600.</p>
           </article>
           <article class="glass-card service-card service-card-tall reveal">
             <span class="service-index">05</span>
-            <h3>Backend y APIs</h3>
-            <p>Conectamos servicios, modelamos lógica de negocio y dejamos una base técnica escalable.</p>
+            <h3 data-i18n="services.cards.backend.title">Backend y APIs</h3>
+            <p data-i18n="services.cards.backend.body">Conectamos servicios, modelamos l&oacute;gica de negocio y dejamos una base escalable. Sistema premium desde USD 600.</p>
           </article>
           <article class="glass-card service-card service-card-wide reveal">
             <span class="service-index">06</span>
-            <h3>Plataformas SaaS complejas y soluciones a medida</h3>
-            <p>Productos multiusuario, módulos internos, dashboards, automatizaciones y crecimiento progresivo sobre una misma arquitectura.</p>
+            <h3 data-i18n="services.cards.saas.title">Plataformas SaaS y soluciones a medida</h3>
+            <p data-i18n="services.cards.saas.body">Productos multiusuario, dashboards, automatizaciones y procesos avanzados con cotizaci&oacute;n personalizada seg&uacute;n complejidad.</p>
           </article>
         </div>
       </div>
@@ -254,11 +260,11 @@
       <div class="container">
         <div class="portfolio-head reveal">
           <div>
-            <p class="eyebrow">Proyectos realizados</p>
-            <h2>Trabajos pensados para posicionar mejor cada marca y facilitar su operaci&oacute;n</h2>
-            <p>Cada proyecto combina dise&ntilde;o, claridad comercial y una experiencia digital alineada al negocio real del cliente.</p>
+            <p class="eyebrow" data-i18n="portfolio.eyebrow">Proyectos realizados</p>
+            <h2 data-i18n="portfolio.title">Trabajos pensados para posicionar mejor cada marca y facilitar su operaci&oacute;n</h2>
+            <p data-i18n="portfolio.body">Cada proyecto combina dise&ntilde;o, claridad comercial y una experiencia digital alineada al negocio real del cliente.</p>
           </div>
-          <a class="button button-secondary" href="#contacto">Hablemos de tu proyecto</a>
+          <a class="button button-secondary" href="#contacto" data-i18n="portfolio.cta">Hablemos de tu proyecto</a>
         </div>
 
         <div class="project-grid" data-portfolio-grid></div>
@@ -268,47 +274,47 @@
     <section class="section section-cut" id="precios">
       <div class="container strategy-layout">
         <div class="strategy-column reveal">
-          <p class="eyebrow">Por qué elegirnos</p>
-          <h2>Soluciones modernas con diseño premium, soporte y escalabilidad</h2>
+          <p class="eyebrow" data-i18n="why.eyebrow">Por qu&eacute; elegirnos</p>
+          <h2 data-i18n="why.title">Soluciones modernas con dise&ntilde;o premium, soporte y escalabilidad</h2>
           <div class="glass-card strategy-card">
             <ul class="feature-list">
-              <li>Diseño premium con identidad propia</li>
-              <li>Automatización aplicada a operaciones reales</li>
-              <li>Arquitectura lista para crecer sin rehacer todo</li>
-              <li>Integración con backend, APIs y paneles internos</li>
-              <li>Soporte evolutivo para acompañar el crecimiento</li>
+              <li data-i18n="why.features.0">Dise&ntilde;o premium con identidad propia</li>
+              <li data-i18n="why.features.1">Automatizaci&oacute;n aplicada a operaciones reales</li>
+              <li data-i18n="why.features.2">Arquitectura lista para crecer sin rehacer todo</li>
+              <li data-i18n="why.features.3">Integraci&oacute;n con backend, APIs y paneles internos</li>
+              <li data-i18n="why.features.4">Soporte evolutivo para acompa&ntilde;ar el crecimiento</li>
             </ul>
           </div>
           <div class="process-stack">
-            <article class="glass-card process-card"><small>01</small><strong>Estrategia</strong><span>Leemos tu negocio y definimos el sistema correcto.</span></article>
-            <article class="glass-card process-card"><small>02</small><strong>Diseño</strong><span>Construimos una experiencia visual mucho más distintiva.</span></article>
-            <article class="glass-card process-card"><small>03</small><strong>Desarrollo</strong><span>Implementamos frontend, lógica y operación sin improvisar.</span></article>
+            <article class="glass-card process-card"><small>01</small><strong data-i18n="why.process.0.title">Estrategia</strong><span data-i18n="why.process.0.body">Leemos tu negocio y definimos la soluci&oacute;n correcta seg&uacute;n tus objetivos.</span></article>
+            <article class="glass-card process-card"><small>02</small><strong data-i18n="why.process.1.title">Dise&ntilde;o</strong><span data-i18n="why.process.1.body">Construimos una experiencia visual premium y alineada a tu marca.</span></article>
+            <article class="glass-card process-card"><small>03</small><strong data-i18n="why.process.2.title">Desarrollo</strong><span data-i18n="why.process.2.body">Implementamos frontend, automatizaci&oacute;n y sistemas escalables sin improvisar.</span></article>
           </div>
         </div>
 
         <div class="pricing-column">
           <div class="section-head reveal">
-            <p class="eyebrow">Precios</p>
-            <h2>Paquetes claros para lanzar tu presencia digital o construir una soluci&oacute;n m&aacute;s completa</h2>
+            <p class="eyebrow" data-i18n="pricing.eyebrow">Precios</p>
+            <h2 data-i18n="pricing.title">Estructura comercial clara para lanzar tu presencia digital o construir una soluci&oacute;n m&aacute;s completa</h2>
           </div>
 
           <div class="pricing-stack">
             <article class="glass-card price-card reveal">
-              <span class="price-badge">Landing / Básico</span>
-              <h3>Desde USD 300</h3>
-              <p>Base sólida para mostrar tu negocio con una web profesional, moderna y responsive.</p>
+              <span class="price-badge" data-i18n="pricing.cards.landing.badge">Landing Page</span>
+              <h3 data-i18n="pricing.cards.landing.price">USD 300</h3>
+              <p data-i18n="pricing.cards.landing.body">Ideal para lanzar una presencia digital profesional, clara y lista para convertir visitas en consultas.</p>
             </article>
             <article class="glass-card price-card price-card-featured reveal">
-              <span class="price-badge">Premium</span>
-              <h3>Desde USD 600</h3>
-              <p>Diseño más distintivo, más motion, más estructura comercial y una percepción mucho más seria.</p>
+              <span class="price-badge" data-i18n="pricing.cards.premium.badge">Sistema Premium</span>
+              <h3 data-i18n="pricing.cards.premium.price">Desde USD 600</h3>
+              <p data-i18n="pricing.cards.premium.body">Sistemas premium desde USD 600, ajustados a la complejidad, procesos y objetivos de tu negocio.</p>
             </article>
             <article class="glass-card price-card reveal">
-              <span class="price-badge">Sistema SaaS / empresarial</span>
-              <h3>Cotización personalizada</h3>
-              <p>Para operaciones que necesitan reservas, paneles, automatización, roles, backend y crecimiento.</p>
+              <span class="price-badge" data-i18n="pricing.cards.saas.badge">SaaS / sistema complejo</span>
+              <h3 data-i18n="pricing.cards.saas.price">Cotizaci&oacute;n personalizada</h3>
+              <p data-i18n="pricing.cards.saas.body">Para operaciones que necesitan reservas, paneles, automatizaci&oacute;n, roles, backend y crecimiento escalable.</p>
             </article>
-            <p class="pricing-note reveal">Presupuestos adaptados a tu negocio. Podemos empezar por una web premium y escalar luego a reservas, automatizaciones o un sistema completo.</p>
+            <p class="pricing-note reveal" data-i18n="pricing.note">Precios personalizados, cotizaci&oacute;n seg&uacute;n necesidades y escalable seg&uacute;n el negocio. Podemos empezar por una Landing Page y crecer hacia un sistema premium o una plataforma SaaS.</p>
           </div>
         </div>
       </div>
@@ -317,58 +323,68 @@
     <section class="section contact-section" id="contacto">
       <div class="container contact-layout">
         <div class="contact-rail reveal">
-          <p class="eyebrow">Contacto</p>
-          <h2>Hablemos de tu proyecto y definamos la mejor soluci&oacute;n para tu negocio</h2>
-          <p>Cu&eacute;ntanos qu&eacute; quieres mejorar, qu&eacute; procesos quieres automatizar y qu&eacute; tipo de sistema o web necesitas. Te respondemos con una propuesta clara y enfocada en resultados.</p>
-
-          <div class="social-stack">
-            <a class="button button-primary" data-whatsapp-link href="https://wa.me/59892966252?text=Hola%20CodeFlow%20Studio" target="_blank" rel="noreferrer">WhatsApp</a>
-            <a class="button button-secondary" data-instagram-link href="https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr" target="_blank" rel="noreferrer">Instagram</a>
-          </div>
+          <p class="eyebrow" data-i18n="contact.eyebrow">Cotizaci&oacute;n</p>
+          <h2 data-i18n="contact.title">Cu&eacute;ntanos qu&eacute; necesitas y te respondemos con una propuesta clara</h2>
+          <p data-i18n="contact.body">Expl&iacute;canos qu&eacute; quieres mejorar, qu&eacute; procesos quieres automatizar y qu&eacute; tipo de sistema o web necesitas. Te respondemos con una cotizaci&oacute;n alineada a tu negocio.</p>
 
           <div class="glass-card contact-note-card">
-            <strong>Propuesta enfocada en conversi&oacute;n</strong>
-            <p>Analizamos tu caso, detectamos oportunidades reales y te guiamos hacia una web o sistema que ayude a vender m&aacute;s y operar mejor.</p>
+            <strong data-i18n="contact.noteTitle">Propuesta orientada a resultados</strong>
+            <p data-i18n="contact.noteBody">Analizamos tu caso, detectamos oportunidades reales y te guiamos hacia una Landing Page o un sistema premium que ayude a vender m&aacute;s y operar mejor.</p>
           </div>
         </div>
 
         <form class="glass-card message-form reveal" data-contact-form novalidate>
           <div class="form-grid">
             <label>
-              Nombre
-              <input type="text" name="name" autocomplete="name" placeholder="Tu nombre" required>
+              <span data-i18n="contact.form.name">Nombre</span>
+              <input type="text" name="name" autocomplete="name" placeholder="Tu nombre" data-i18n-placeholder="contact.placeholders.name" required>
             </label>
             <label>
-              Negocio
-              <input type="text" name="business" autocomplete="organization" placeholder="Nombre de tu negocio" required>
+              <span data-i18n="contact.form.business">Negocio</span>
+              <input type="text" name="business" autocomplete="organization" placeholder="Nombre de tu negocio" data-i18n-placeholder="contact.placeholders.business" required>
             </label>
             <label>
-              WhatsApp
-              <input type="tel" name="whatsapp" autocomplete="tel" placeholder="Tu contacto directo" required>
+              <span data-i18n="contact.form.whatsapp">WhatsApp</span>
+              <input type="tel" name="whatsapp" autocomplete="tel" placeholder="Tu contacto directo" data-i18n-placeholder="contact.placeholders.whatsapp" required>
             </label>
             <label>
-              Instagram opcional
-              <input type="text" name="instagram" autocomplete="off" placeholder="@tuusuario">
+              <span data-i18n="contact.form.instagram">Instagram opcional</span>
+              <input type="text" name="instagram" autocomplete="off" placeholder="@tuusuario" data-i18n-placeholder="contact.placeholders.instagram">
             </label>
           </div>
 
           <label>
-            Tipo de proyecto
+            <span data-i18n="contact.form.projectType">Qu&eacute; necesitas</span>
             <select name="projectType" data-project-type-select required></select>
           </label>
 
           <label>
-            Mensaje detallado
-            <textarea name="message" rows="6" placeholder="Cu&eacute;ntanos qu&eacute; quieres mejorar, qu&eacute; problema quieres resolver y qu&eacute; resultado buscas para tu negocio." required></textarea>
+            <span data-i18n="contact.form.message">Mensaje detallado</span>
+            <textarea name="message" rows="6" placeholder="Cu&eacute;ntanos qu&eacute; quieres mejorar, qu&eacute; problema quieres resolver y qu&eacute; resultado buscas para tu negocio." data-i18n-placeholder="contact.placeholders.message" required></textarea>
           </label>
 
           <div class="form-actions">
-            <button class="button button-primary" type="submit">Solicitar presupuesto</button>
-            <a class="button button-ghost" data-instagram-link href="https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr" target="_blank" rel="noreferrer">Abrir Instagram</a>
+            <button class="button button-primary" type="submit" data-i18n="contact.form.submit">Solicitar presupuesto</button>
           </div>
 
           <p class="form-feedback" data-form-feedback role="status" aria-live="polite"></p>
         </form>
+      </div>
+    </section>
+
+    <section class="section final-contact-band">
+      <div class="container">
+        <div class="glass-card final-contact-card reveal">
+          <div class="final-contact-copy">
+            <p class="eyebrow" data-i18n="finalCta.eyebrow">Contacto directo</p>
+            <h2 data-i18n="finalCta.title">Hablemos de tu proyecto</h2>
+            <p data-i18n="finalCta.body">Si ya tienes una idea clara o quieres una cotizaci&oacute;n r&aacute;pida, escr&iacute;benos directamente por WhatsApp o Instagram y coordinamos el siguiente paso.</p>
+          </div>
+          <div class="final-contact-actions">
+            <a class="button button-primary" data-whatsapp-link href="https://wa.me/59892966252?text=Hola%20CodeFlow%20Studio" target="_blank" rel="noreferrer" data-i18n="finalCta.whatsapp">WhatsApp</a>
+            <a class="button button-secondary" data-instagram-link href="https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr" target="_blank" rel="noreferrer" data-i18n="finalCta.instagram">Instagram</a>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -377,17 +393,15 @@
     <div class="container footer-inner">
       <img class="footer-logo" src="assets/codeflow-studio-logo.png" alt="CodeFlow Studio" width="248" height="102" loading="lazy">
       <div class="footer-cta-group">
-        <a class="button button-secondary button-compact" href="#contacto">Solicitar presupuesto</a>
-        <a class="button button-ghost button-compact" data-whatsapp-link href="https://wa.me/59892966252?text=Hola%20CodeFlow%20Studio" target="_blank" rel="noreferrer">WhatsApp</a>
-        <a class="button button-ghost button-compact" data-instagram-link href="https://www.instagram.com/codeflowstudio_?igsh=NjgyenVqY3NicTJk&utm_source=qr" target="_blank" rel="noreferrer">Instagram</a>
+        <a class="button button-secondary button-compact" href="#contacto" data-i18n="footer.cta">Solicitar presupuesto</a>
       </div>
-      <p class="footer-copy">© 2026 Todos los derechos reservados. Sitio desarrollado por <span>CodeFlow Studio</span></p>
+      <p class="footer-copy"><span data-i18n="footer.copy">© 2026 Todos los derechos reservados. Sitio desarrollado por</span> <span>CodeFlow Studio</span></p>
     </div>
   </footer>
 
-  <script src="site-config.js?v=20260409-4"></script>
+  <script src="site-config.js?v=20260409-5"></script>
   <script src="assets-manifest.js?v=20260408-3"></script>
   <script src="messages.js?v=20260409-3"></script>
-  <script src="script.js?v=20260409-3" defer></script>
+  <script src="script.js?v=20260409-5" defer></script>
 </body>
 </html>

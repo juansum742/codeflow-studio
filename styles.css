@@ -60,6 +60,18 @@ a {
   text-decoration: none;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 button,
 input,
 textarea,
@@ -350,6 +362,37 @@ code {
 
 .nav-actions {
   gap: 12px;
+}
+
+.language-switcher {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.language-switcher select {
+  min-height: 46px;
+  padding: 0 40px 0 16px;
+  border-radius: 999px;
+  border: 1px solid rgba(103, 176, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(14, 23, 39, 0.92), rgba(7, 12, 22, 0.92)),
+    rgba(8, 13, 24, 0.66);
+  color: var(--muted-strong);
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  appearance: none;
+  cursor: pointer;
+}
+
+.language-switcher::after {
+  content: "▾";
+  position: absolute;
+  right: 16px;
+  color: var(--cyan);
+  pointer-events: none;
+  font-size: 0.9rem;
 }
 
 .nav-toggle {
@@ -1034,6 +1077,45 @@ code {
   margin-bottom: 8px;
 }
 
+.final-contact-band {
+  padding-top: 0;
+}
+
+.final-contact-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 24px;
+  align-items: center;
+  padding: 28px;
+  border-radius: 30px;
+}
+
+.final-contact-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.final-contact-copy h2 {
+  margin: 0;
+  font-family: "Sora", sans-serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.05em;
+  line-height: 0.98;
+}
+
+.final-contact-copy p:not(.eyebrow) {
+  margin: 0;
+  color: var(--muted);
+  max-width: 62ch;
+}
+
+.final-contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
 .message-form {
   display: grid;
   gap: 18px;
@@ -1161,6 +1243,14 @@ code {
     max-width: none;
     margin-top: 14px;
   }
+
+  .final-contact-card {
+    grid-template-columns: 1fr;
+  }
+
+  .final-contact-actions {
+    justify-content: flex-start;
+  }
 }
 
 @media (max-width: 1040px) {
@@ -1180,6 +1270,11 @@ code {
 
   .nav-toggle {
     display: inline-flex;
+  }
+
+  .language-switcher select {
+    min-height: 44px;
+    padding: 0 36px 0 14px;
   }
 }
 
@@ -1242,7 +1337,8 @@ code {
   .hero-clients,
   .social-stack,
   .form-actions,
-  .footer-cta-group {
+  .footer-cta-group,
+  .final-contact-actions {
     width: 100%;
   }
 
@@ -1323,10 +1419,22 @@ code {
     justify-content: flex-start;
   }
 
+  .language-switcher {
+    min-width: 92px;
+  }
+
+  .language-switcher select {
+    width: 100%;
+  }
+
   .message-form input,
   .message-form textarea,
   .message-form select {
     font-size: 16px;
+  }
+
+  .final-contact-card {
+    padding: 24px;
   }
 
   .footer-inner {
