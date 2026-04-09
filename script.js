@@ -24,7 +24,6 @@ const twitterDescription = document.querySelector('meta[name="twitter:descriptio
 
 const portfolioState = new Map();
 const LANGUAGE_STORAGE_KEY = "codeflow-studio.language";
-const mobilePortfolioMedia = window.matchMedia("(max-width: 768px)");
 const SUPPORTED_LANGUAGES = Array.isArray(config.supportedLanguages) && config.supportedLanguages.length
   ? config.supportedLanguages
   : ["es", "en", "pt"];
@@ -548,8 +547,6 @@ const buildPortfolioProjects = () => {
     .filter((project) => project.images.length > 0);
 };
 
-const isMobilePortfolioViewport = () => mobilePortfolioMedia.matches;
-
 const updateSliderUi = (slider, activeIndex) => {
   const slides = [...slider.querySelectorAll(".project-slide")];
   const dots = [...slider.querySelectorAll(".project-dot")];
@@ -577,70 +574,11 @@ const setSliderIndex = (sliderId, nextIndex) => {
 
   portfolioState.set(sliderId, safeIndex);
 
-  if (track && !isMobilePortfolioViewport()) {
+  if (track) {
     track.style.transform = `translateX(-${safeIndex * 100}%)`;
   }
 
-  if (track && isMobilePortfolioViewport()) {
-    track.style.transform = "";
-  }
-
-  if (isMobilePortfolioViewport()) {
-    slider.scrollTo({
-      left: safeIndex * slider.clientWidth,
-      behavior: "smooth"
-    });
-  }
-
   updateSliderUi(slider, safeIndex);
-};
-
-const handlePortfolioSliderScroll = (event) => {
-  if (!isMobilePortfolioViewport()) {
-    return;
-  }
-
-  const slider = event.currentTarget;
-  const slides = [...slider.querySelectorAll(".project-slide")];
-
-  if (!slides.length) {
-    return;
-  }
-
-  const slideWidth = slider.clientWidth || slides[0].clientWidth || 1;
-  const nextIndex = Math.max(0, Math.min(slides.length - 1, Math.round(slider.scrollLeft / slideWidth)));
-
-  portfolioState.set(slider.dataset.portfolioSlider, nextIndex);
-  updateSliderUi(slider, nextIndex);
-};
-
-const bindPortfolioSwipe = () => {
-  if (!portfolioGrid) {
-    return;
-  }
-
-  const sliders = [...portfolioGrid.querySelectorAll("[data-portfolio-slider]")];
-
-  sliders.forEach((slider) => {
-    slider.removeEventListener("scroll", handlePortfolioSliderScroll);
-    slider.addEventListener("scroll", handlePortfolioSliderScroll, { passive: true });
-
-    const sliderId = slider.dataset.portfolioSlider;
-    const currentIndex = portfolioState.get(sliderId) ?? 0;
-
-    if (isMobilePortfolioViewport()) {
-      slider.scrollLeft = currentIndex * slider.clientWidth;
-      updateSliderUi(slider, currentIndex);
-    } else {
-      const track = slider.querySelector(".project-track");
-
-      if (track) {
-        track.style.transform = `translateX(-${currentIndex * 100}%)`;
-      }
-
-      updateSliderUi(slider, currentIndex);
-    }
-  });
 };
 
 const renderPortfolio = () => {
@@ -672,13 +610,15 @@ const renderPortfolio = () => {
       return `
         <article class="glass-card project-card">
           <figure class="project-media">
-            <div class="project-slider" data-portfolio-slider="${project.slug}">
+            <div class="project-slider ${hasMultipleImages ? "has-controls" : ""}" data-portfolio-slider="${project.slug}">
               <div class="project-track">
                 ${project.images
                   .map(
                     (imagePath, index) => `
                       <div class="project-slide ${index === 0 ? "is-active" : ""}">
-                        <img src="${imagePath}" alt="${project.name} - ${(getTranslation("portfolio.viewAlt") || "vista")} ${index + 1}" loading="lazy" decoding="async">
+                        <div class="project-viewport">
+                          <img src="${imagePath}" alt="${project.name} - ${(getTranslation("portfolio.viewAlt") || "vista")} ${index + 1}" loading="lazy" decoding="async">
+                        </div>
                       </div>
                     `
                   )
@@ -725,8 +665,6 @@ const renderPortfolio = () => {
       setSliderIndex(project.slug, 0);
     }
   });
-
-  bindPortfolioSwipe();
 };
 
 const updateMeta = () => {
@@ -916,27 +854,9 @@ languageSelect?.addEventListener("change", () => {
   setLanguage(languageSelect.value);
 });
 
-const syncPortfolioViewportMode = () => {
-  if (!portfolioGrid) {
-    return;
-  }
-
-  [...portfolioGrid.querySelectorAll("[data-portfolio-slider]")].forEach((slider) => {
-    const sliderId = slider.dataset.portfolioSlider;
-    setSliderIndex(sliderId, portfolioState.get(sliderId) ?? 0);
-  });
-};
-
-if (typeof mobilePortfolioMedia.addEventListener === "function") {
-  mobilePortfolioMedia.addEventListener("change", syncPortfolioViewportMode);
-} else if (typeof mobilePortfolioMedia.addListener === "function") {
-  mobilePortfolioMedia.addListener(syncPortfolioViewportMode);
-}
-
 setHeaderState();
 setLanguage(currentLanguage);
 setupRevealObserver();
 handleContactSubmit();
 
 window.addEventListener("scroll", setHeaderState, { passive: true });
-window.addEventListener("resize", syncPortfolioViewportMode, { passive: true });
