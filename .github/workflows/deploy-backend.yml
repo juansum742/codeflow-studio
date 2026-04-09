@@ -35,8 +35,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: backend
           wranglerVersion: 4.81.0
-          command: d1 migrations apply DB --remote --config backend/wrangler.jsonc
+          command: d1 migrations apply DB --remote --config wrangler.jsonc
 
       - name: Deploy Worker
         if: steps.backend-config.outputs.ready == 'true'
@@ -44,8 +45,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: backend
           wranglerVersion: 4.81.0
-          command: deploy --config backend/wrangler.jsonc
+          command: deploy --config wrangler.jsonc
           secrets: |
             ADMIN_PASSWORD
             SESSION_SECRET
